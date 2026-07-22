@@ -14,11 +14,17 @@ python = "^3.12"
 fastapi = "^0.139.2"
 pydantic-settings = "^2.14.2"
 uvicorn = { version = "^0.51.0", extras = ["standard"] }
+sqlalchemy = { version = "^2.0", extras = ["asyncio"] }
+alembic = "^1.13"
+asyncpg = "^0.30"
+psycopg = {extras = ["binary"], version = "^3.3.4"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
 mypy = "^1.17.0"
 pytest = "^8.4.1"
+pytest-asyncio = "^0.24"
+aiosqlite = "^0.20"
 ruff = "^0.12.4"
 
 [tool.black]
@@ -41,3 +47,4 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"
