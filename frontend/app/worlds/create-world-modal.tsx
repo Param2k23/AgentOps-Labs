@@ -68,7 +68,7 @@ export function CreateWorldModal({ onSuccess }: { onSuccess: () => void }) {
       form.reset();
       setOpen(false);
       onSuccess();
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
@@ -91,7 +91,7 @@ export function CreateWorldModal({ onSuccess }: { onSuccess: () => void }) {
         <DialogHeader>
           <DialogTitle>Create World</DialogTitle>
           <DialogDescription>
-            Add a new enterprise world environment. Click save when you're done.
+            Add a new enterprise world environment. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

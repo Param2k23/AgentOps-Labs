@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -40,8 +39,12 @@ export default function WorldsPage() {
       }
       const data = await res.json();
       setWorlds(data);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +67,7 @@ export default function WorldsPage() {
         description: "The world has been deleted.",
       });
       fetchWorlds();
-    } catch (err) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
