@@ -6,6 +6,7 @@ connections share the same memory instance.
 """
 
 from collections.abc import AsyncGenerator
+from typing import Any
 
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -41,3 +42,22 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
         await conn.run_sync(Base.metadata.drop_all)
 
     await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def async_client(db_session: AsyncSession) -> AsyncGenerator[Any, None]:
+    """Test client for FastAPI that uses the test database session."""
+    import httpx
+    from core.app import app
+    from core.database import get_db
+
+    # Override get_db to return our test session
+    async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        yield client
+
+    app.dependency_overrides.clear()
