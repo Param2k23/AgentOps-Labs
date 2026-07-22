@@ -112,50 +112,16 @@ No code yet.
 
 ---
 
-# Milestone 1
+### Milestone 1 – Foundation
 
-Project Foundation
+- Repository initialization
+- FastAPI bootstrap
+- Next.js bootstrap
+- Development environment configuration
+- Local development verification
+- Docker configuration files (creation only)
 
-Duration
-
-1 Day
-
-Goals
-
-Initialize repository.
-
-Tasks
-
-Create backend
-
-Create frontend
-
-Docker setup
-
-Poetry
-
-Node setup
-
-Environment configuration
-
-GitHub Actions
-
-README
-
-.gitignore
-
-Directory structure
-
-Deliverables
-
-Repository builds.
-
-Frontend starts.
-
-Backend starts.
-
-Docker works.
-
+**Note:** Docker runtime verification is intentionally deferred until the Deployment milestone to keep early development lightweight and platform-independent.
 ---
 
 # Milestone 2

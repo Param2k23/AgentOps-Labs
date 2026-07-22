@@ -736,3 +736,24 @@ The implementation is successful only if
 Quality is more important than speed.
 
 Enterprise Agent Lab should feel like software developed by a senior engineering team—not a collection of AI-generated files.
+
+## Local Development Policy
+
+During Milestones 1–13:
+
+- The primary development environment is local.
+- Docker configuration files must be maintained.
+- Do not assume Docker is available during implementation.
+- All features must be runnable locally using:
+  - Poetry
+  - Python
+  - Node.js
+  - npm
+
+Docker containers will be validated during Milestone 14 (Deployment).
+
+## Local-First Rule
+
+Every feature must be runnable without Docker unless the task explicitly belongs to the Deployment milestone.
+
+The AI must never block feature implementation due to unavailable container infrastructure.
