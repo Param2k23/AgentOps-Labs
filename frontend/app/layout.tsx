@@ -1,4 +1,12 @@
 import type { Metadata } from 'next'
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+});
+
+import { DashboardShell } from '@/components/dashboard-shell'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -12,8 +20,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <DashboardShell>{children}</DashboardShell>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }
