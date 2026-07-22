@@ -7,6 +7,7 @@ const inter = Inter({
 
 import { DashboardShell } from '@/components/dashboard-shell'
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from "@/components/ui/toaster"
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <DashboardShell>{children}</DashboardShell>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
