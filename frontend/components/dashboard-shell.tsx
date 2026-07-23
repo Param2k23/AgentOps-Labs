@@ -10,6 +10,7 @@ import {
   ScrollText,
   Settings2,
   Trophy,
+  FileText,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -20,6 +21,7 @@ import { cn } from '@/lib/utils'
 const navigationItems = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
   { label: 'Worlds', href: '/worlds', icon: Globe2 },
+  { label: 'Documents', href: '/documents', icon: FileText },
   { label: 'Tasks', href: '/tasks', icon: ScrollText },
   { label: 'Runs', href: '/runs', icon: PlaySquare },
   { label: 'Leaderboard', href: '/leaderboard', icon: Trophy },
