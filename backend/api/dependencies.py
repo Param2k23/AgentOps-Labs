@@ -5,8 +5,10 @@ from config.settings import Settings, get_settings
 from core.database import get_db
 from repositories.world import WorldRepository
 from repositories.document import DocumentRepository
+from repositories.task import TaskRepository
 from services.world import WorldService
 from services.document import DocumentService
+from services.task import TaskService
 
 
 def get_app_settings() -> Settings:
@@ -24,3 +26,11 @@ def get_document_service(db: AsyncSession = Depends(get_db)) -> DocumentService:
     document_repo = DocumentRepository(session=db)
     world_repo = WorldRepository(session=db)
     return DocumentService(document_repository=document_repo, world_repository=world_repo)
+
+
+def get_task_service(db: AsyncSession = Depends(get_db)) -> TaskService:
+    """Provide a TaskService instance with injected dependencies."""
+    task_repo = TaskRepository(session=db)
+    document_repo = DocumentRepository(session=db)
+    world_repo = WorldRepository(session=db)
+    return TaskService(task_repository=task_repo, document_repository=document_repo, world_repository=world_repo)

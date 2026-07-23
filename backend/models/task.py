@@ -51,6 +51,12 @@ class Task(BaseModel):
         index=False,  # covered by ix_tasks_world_id
         doc="FK to the World that owns this task.",
     )
+    document_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+        doc="FK to the Document this task belongs to.",
+    )
     title: Mapped[str] = mapped_column(
         String(512),
         nullable=False,
@@ -103,6 +109,11 @@ class Task(BaseModel):
         back_populates="tasks",
         lazy="selectin",
         doc="The World this task belongs to.",
+    )
+    document: Mapped[Optional["Document"]] = relationship(
+        "Document",
+        lazy="selectin",
+        doc="The Document this task belongs to.",
     )
     evaluation_runs: Mapped[list["EvaluationRun"]] = relationship(
         "EvaluationRun",

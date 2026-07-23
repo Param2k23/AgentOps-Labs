@@ -25,6 +25,10 @@ class TaskCreate(BaseModel):
         ...,
         description="UUID of the World this task belongs to.",
     )
+    document_id: uuid.UUID = Field(
+        ...,
+        description="UUID of the Document this task belongs to.",
+    )
     title: str = Field(
         ...,
         min_length=1,
@@ -88,6 +92,7 @@ class TaskResponse(BaseModel):
 
     id: uuid.UUID
     world_id: uuid.UUID
+    document_id: Optional[uuid.UUID]
     title: str
     description: Optional[str]
     difficulty: Optional[str]
