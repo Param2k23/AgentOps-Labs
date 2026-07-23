@@ -40,3 +40,7 @@ build/
 
 # Docker
 docker-compose.override.yml
+
+# Uploaded documents (runtime generated)
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
