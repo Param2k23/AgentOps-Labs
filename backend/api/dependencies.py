@@ -6,9 +6,11 @@ from core.database import get_db
 from repositories.world import WorldRepository
 from repositories.document import DocumentRepository
 from repositories.task import TaskRepository
+from repositories.evaluation_run import EvaluationRunRepository
 from services.world import WorldService
 from services.document import DocumentService
 from services.task import TaskService
+from services.evaluation_run import EvaluationRunService
 
 
 def get_app_settings() -> Settings:
@@ -34,3 +36,15 @@ def get_task_service(db: AsyncSession = Depends(get_db)) -> TaskService:
     document_repo = DocumentRepository(session=db)
     world_repo = WorldRepository(session=db)
     return TaskService(task_repository=task_repo, document_repository=document_repo, world_repository=world_repo)
+
+
+def get_evaluation_run_service(db: AsyncSession = Depends(get_db)) -> EvaluationRunService:
+    """Provide an EvaluationRunService instance with injected dependencies."""
+    eval_run_repo = EvaluationRunRepository(session=db)
+    task_repo = TaskRepository(session=db)
+    world_repo = WorldRepository(session=db)
+    return EvaluationRunService(
+        evaluation_run_repository=eval_run_repo,
+        task_repository=task_repo,
+        world_repository=world_repo,
+    )
