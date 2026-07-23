@@ -10,6 +10,7 @@ Import order follows the dependency graph:
 
 from models.base import BaseModel, TimestampMixin
 from models.document import Document
+from models.document_chunk import DocumentChunk
 from models.evaluation_run import EvaluationRun
 from models.task import Task
 from models.world import World
@@ -19,6 +20,7 @@ __all__ = [
     "TimestampMixin",
     "World",
     "Document",
+    "DocumentChunk",
     "Task",
     "EvaluationRun",
 ]

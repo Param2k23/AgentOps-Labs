@@ -61,3 +61,23 @@ async def delete_task(
         await service.delete_task(task_id)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+
+
+from api.dependencies import get_retrieval_service
+from services.retrieval import RetrievalService
+from core.exceptions import BadRequestException
+
+@router.get("/{task_id}/retrieval", status_code=status.HTTP_200_OK)
+async def retrieve_task_chunks(
+    task_id: uuid.UUID,
+    top_k: int = Query(3, description="Number of chunks to retrieve"),
+    service: RetrievalService = Depends(get_retrieval_service),
+) -> Any:
+    """Retrieve top chunks for a task."""
+    try:
+        chunks = await service.retrieve_chunks(task_id, top_k=top_k)
+        return [{"score": item["score"], "text": item["chunk"].text, "chunk_index": item["chunk"].chunk_index} for item in chunks]
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+    except BadRequestException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)

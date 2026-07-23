@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TestRetrievalModal } from "./test-retrieval-modal";
 import { PageShell } from "@/components/page-shell";
 
 type Task = {
@@ -146,7 +147,8 @@ export default function TasksPage() {
                   <TableCell className="text-muted-foreground">
                     {new Date(task.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right flex items-center justify-end space-x-2">
+                    <TestRetrievalModal taskId={task.id} taskTitle={task.title} />
                     <Button
                       variant="ghost"
                       size="icon"

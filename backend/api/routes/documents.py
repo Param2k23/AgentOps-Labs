@@ -78,3 +78,22 @@ async def delete_document(
         await service.delete_document(document_id)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+
+
+from api.dependencies import get_retrieval_service
+from services.retrieval import RetrievalService
+
+@router.post("/{document_id}/chunks/rebuild", status_code=status.HTTP_200_OK)
+async def rebuild_document_chunks(
+    document_id: uuid.UUID,
+    chunk_size: int = Query(500, description="Size of chunks in characters"),
+    service: RetrievalService = Depends(get_retrieval_service),
+) -> Any:
+    """Rebuild chunks for a document."""
+    try:
+        chunks = await service.chunk_document(document_id, chunk_size=chunk_size)
+        return {"message": f"Successfully created {len(chunks)} chunks."}
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+    except BadRequestException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)

@@ -8,6 +8,8 @@ from repositories.evaluation_run import EvaluationRunRepository
 from repositories.task import TaskRepository
 from schemas.evaluation_run import EvaluationRunResponse
 
+from services.retrieval import RetrievalService
+
 class EvaluationEngineService:
     """Service responsible for executing EvaluationRuns."""
 
@@ -15,9 +17,11 @@ class EvaluationEngineService:
         self,
         evaluation_run_repository: EvaluationRunRepository,
         task_repository: TaskRepository,
+        retrieval_service: RetrievalService,
     ):
         self.evaluation_run_repository = evaluation_run_repository
         self.task_repository = task_repository
+        self.retrieval_service = retrieval_service
 
     async def execute_run(self, eval_run_id: UUID) -> EvaluationRunResponse:
         """Executes the evaluation run and returns the updated run."""
@@ -43,14 +47,20 @@ class EvaluationEngineService:
             await self.evaluation_run_repository.update(eval_run_model, status="failed", feedback="Task not found")
             raise NotFoundException(detail="Task not found.")
             
-        document = task.document
-        doc_text = document.extracted_text if document and document.extracted_text else "No document attached."
+        # Retrieve chunks for context
+        try:
+            top_chunks = await self.retrieval_service.retrieve_chunks(task.id, top_k=3)
+            doc_text = "\n\n".join([item["chunk"].text for item in top_chunks])
+            if not doc_text:
+                doc_text = "No document attached or no chunks found."
+        except Exception:
+            doc_text = "No document attached or no chunks found."
 
         # 3. Generate Model Response (Mock implementation)
         # In the future, this will call the actual LLM integration.
         generated_response = (
             f"Mock generated response for task: {task.title}.\n"
-            f"Based on document content (snippet): {doc_text[:100]}...\n"
+            f"Based on retrieved document context (snippet): {doc_text[:100]}...\n"
             "This is a placeholder for the actual LLM generation."
         )
 
