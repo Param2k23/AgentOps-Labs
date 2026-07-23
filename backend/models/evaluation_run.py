@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text
+from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import BaseModel
@@ -135,6 +135,35 @@ class EvaluationRun(BaseModel):
         DateTime(timezone=True),
         nullable=True,
         doc="When the evaluation finished (including scoring).",
+    )
+    
+    # ------------------------------------------------------------------
+    # LLM Metadata
+    # ------------------------------------------------------------------
+    provider: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        nullable=True,
+        doc="The LLM provider used for generation (e.g., openai).",
+    )
+    latency_ms: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        nullable=True,
+        doc="The latency of the LLM generation call in milliseconds.",
+    )
+    prompt_tokens: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        nullable=True,
+        doc="Number of tokens in the prompt.",
+    )
+    completion_tokens: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        nullable=True,
+        doc="Number of tokens in the generated response.",
+    )
+    total_tokens: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        nullable=True,
+        doc="Total number of tokens used (prompt + completion).",
     )
 
     # ------------------------------------------------------------------
