@@ -12,4 +12,10 @@ class NotFoundException(EnterpriseAgentLabError):
         self.detail = detail
         super().__init__(self.detail)
 
+class BadRequestException(EnterpriseAgentLabError):
+    """Raised when the request is invalid."""
+    def __init__(self, detail: str = "Bad Request"):
+        self.detail = detail
+        super().__init__(self.detail)
+
 

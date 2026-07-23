@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, ServerCrash, Trash2, FileText } from "lucide-react";
-import { CreateDocumentModal } from "./create-document-modal";
+import { UploadDocumentModal } from "./upload-document-modal";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -85,7 +85,7 @@ export default function DocumentsPage() {
       description="Enterprise knowledge base, files, and dataset resources."
     >
       <div className="flex items-center justify-end mb-6 mt-[-60px] relative z-10">
-        <CreateDocumentModal onSuccess={fetchDocuments} />
+        <UploadDocumentModal onSuccess={fetchDocuments} />
       </div>
 
       {isLoading ? (
@@ -112,7 +112,7 @@ export default function DocumentsPage() {
               Add a new enterprise document to get started.
             </p>
           </div>
-          <CreateDocumentModal onSuccess={fetchDocuments} />
+          <UploadDocumentModal onSuccess={fetchDocuments} />
         </div>
       ) : (
         <div className="rounded-md border">

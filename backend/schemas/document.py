@@ -37,6 +37,11 @@ class DocumentCreate(BaseModel):
         max_length=50,
         description="File type label: pdf | docx | txt | markdown | csv | json | xlsx.",
     )
+    content_type: Optional[str] = Field(
+        default=None,
+        max_length=100,
+        description="Standard MIME type (e.g. application/pdf, text/plain).",
+    )
     department: Optional[str] = Field(
         default=None,
         max_length=100,
@@ -60,6 +65,10 @@ class DocumentCreate(BaseModel):
         default=None,
         description="Arbitrary document-level metadata.",
     )
+    extracted_text: Optional[str] = Field(
+        default=None,
+        description="Raw text extracted from the document.",
+    )
 
 
 class DocumentResponse(BaseModel):
@@ -74,6 +83,7 @@ class DocumentResponse(BaseModel):
     world_id: uuid.UUID
     filename: str
     document_type: Optional[str]
+    content_type: Optional[str]
     department: Optional[str]
     storage_path: Optional[str]
     file_size: Optional[int]
@@ -83,5 +93,6 @@ class DocumentResponse(BaseModel):
         alias="metadata_",
         serialization_alias="metadata",
     )
+    extracted_text: Optional[str]
     created_at: datetime
     updated_at: datetime

@@ -1,10 +1,10 @@
 import uuid
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 
 from api.dependencies import get_document_service
-from core.exceptions import NotFoundException
+from core.exceptions import NotFoundException, BadRequestException
 from schemas.document import DocumentCreate, DocumentResponse
 from services.document import DocumentService
 
@@ -39,6 +39,21 @@ async def create_document(
         # According to standard REST, if the referenced entity doesn't exist, we return 400 or 404. 
         # But for unprocessable dependency (like foreign key missing), 422 or 404 is good.
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+
+
+@router.post("/worlds/{world_id}/upload", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
+async def upload_document(
+    world_id: uuid.UUID,
+    file: UploadFile = File(...),
+    service: DocumentService = Depends(get_document_service),
+) -> Any:
+    """Upload a new document to a world."""
+    try:
+        return await service.upload_document(world_id, file)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+    except BadRequestException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
