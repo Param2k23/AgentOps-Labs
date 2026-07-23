@@ -1,5 +1,6 @@
 import uuid
-from sqlalchemy import ForeignKey, Index, Integer, Text
+from datetime import datetime
+from sqlalchemy import ForeignKey, Index, Integer, Text, JSON, String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import BaseModel
@@ -37,6 +38,26 @@ class DocumentChunk(BaseModel):
         Integer,
         nullable=True,
         doc="Approximate number of tokens in the chunk.",
+    )
+    embedding: Mapped[list[float]] = mapped_column(
+        JSON,
+        nullable=True,
+        doc="The vector embedding of the chunk text, stored as a JSON array.",
+    )
+    embedding_model: Mapped[str] = mapped_column(
+        String(255),
+        nullable=True,
+        doc="The name of the model used to generate the embedding.",
+    )
+    embedded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        doc="When the embedding was generated.",
+    )
+    embedding_dimension: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True,
+        doc="The dimension of the embedding vector.",
     )
 
     # ------------------------------------------------------------------

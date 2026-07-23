@@ -27,3 +27,15 @@ class DocumentChunkRepository(BaseRepository[DocumentChunk]):
         await self.session.execute(stmt)
         await self.session.flush()
 
+    async def get_chunks_without_embeddings(self, model_name: str) -> Sequence[DocumentChunk]:
+        """Retrieves all chunks that do not have embeddings from the specified model."""
+        stmt = (
+            select(DocumentChunk)
+            .where(
+                (DocumentChunk.embedding == None) | 
+                (DocumentChunk.embedding_model != model_name)
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+

@@ -13,14 +13,22 @@ from services.document import DocumentService
 from services.task import TaskService
 from services.evaluation_run import EvaluationRunService
 from services.evaluation_engine import EvaluationEngineService
+from services.embedding import EmbeddingService
 from services.retrieval import RetrievalService
 
 
 def get_app_settings() -> Settings:
     return get_settings()
 
+def get_embedding_service() -> EmbeddingService:
+    """Provide a singleton EmbeddingService instance."""
+    # Instantiating the service (it lazy-loads the model)
+    return EmbeddingService()
 
-def get_retrieval_service(db: AsyncSession = Depends(get_db)) -> RetrievalService:
+def get_retrieval_service(
+    db: AsyncSession = Depends(get_db),
+    embedding_service: EmbeddingService = Depends(get_embedding_service)
+) -> RetrievalService:
     """Provide a RetrievalService instance with injected dependencies."""
     document_repo = DocumentRepository(session=db)
     document_chunk_repo = DocumentChunkRepository(session=db)
@@ -29,6 +37,7 @@ def get_retrieval_service(db: AsyncSession = Depends(get_db)) -> RetrievalServic
         document_repository=document_repo,
         document_chunk_repository=document_chunk_repo,
         task_repository=task_repo,
+        embedding_service=embedding_service,
     )
 
 

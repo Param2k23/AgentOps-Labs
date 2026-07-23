@@ -83,6 +83,17 @@ async def delete_document(
 from api.dependencies import get_retrieval_service
 from services.retrieval import RetrievalService
 
+@router.post("/chunks/reindex-all", status_code=status.HTTP_200_OK)
+async def reindex_all_chunks(
+    service: RetrievalService = Depends(get_retrieval_service),
+) -> Any:
+    """Reindex all chunks across all documents that are missing embeddings."""
+    try:
+        updated_count = await service.reindex_all_chunks()
+        return {"message": f"Successfully generated embeddings for {updated_count} chunks."}
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
 @router.post("/{document_id}/chunks/rebuild", status_code=status.HTTP_200_OK)
 async def rebuild_document_chunks(
     document_id: uuid.UUID,
