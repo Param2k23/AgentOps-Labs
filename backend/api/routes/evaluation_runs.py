@@ -3,10 +3,11 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 
-from api.dependencies import get_evaluation_run_service
-from core.exceptions import NotFoundException
+from api.dependencies import get_evaluation_run_service, get_evaluation_engine_service
+from core.exceptions import NotFoundException, BadRequestException
 from schemas.evaluation_run import EvaluationRunCreate, EvaluationRunResponse
 from services.evaluation_run import EvaluationRunService
+from services.evaluation_engine import EvaluationEngineService
 
 router = APIRouter(prefix="/evaluation-runs", tags=["evaluation-runs"])
 
@@ -61,3 +62,17 @@ async def delete_evaluation_run(
         await service.delete_evaluation_run(eval_run_id)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+
+
+@router.post("/{eval_run_id}/execute", response_model=EvaluationRunResponse)
+async def execute_evaluation_run(
+    eval_run_id: uuid.UUID,
+    engine_service: EvaluationEngineService = Depends(get_evaluation_engine_service),
+) -> Any:
+    """Execute an evaluation run."""
+    try:
+        return await engine_service.execute_run(eval_run_id)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+    except BadRequestException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.detail)

@@ -11,6 +11,7 @@ from services.world import WorldService
 from services.document import DocumentService
 from services.task import TaskService
 from services.evaluation_run import EvaluationRunService
+from services.evaluation_engine import EvaluationEngineService
 
 
 def get_app_settings() -> Settings:
@@ -47,4 +48,13 @@ def get_evaluation_run_service(db: AsyncSession = Depends(get_db)) -> Evaluation
         evaluation_run_repository=eval_run_repo,
         task_repository=task_repo,
         world_repository=world_repo,
+    )
+
+def get_evaluation_engine_service(db: AsyncSession = Depends(get_db)) -> EvaluationEngineService:
+    """Provide an EvaluationEngineService instance with injected dependencies."""
+    eval_run_repo = EvaluationRunRepository(session=db)
+    task_repo = TaskRepository(session=db)
+    return EvaluationEngineService(
+        evaluation_run_repository=eval_run_repo,
+        task_repository=task_repo,
     )

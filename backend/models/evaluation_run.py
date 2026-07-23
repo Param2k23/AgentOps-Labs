@@ -116,6 +116,11 @@ class EvaluationRun(BaseModel):
         nullable=True,
         doc="Free-text evaluator feedback or error explanation.",
     )
+    response: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        doc="The generated response from the LLM.",
+    )
 
     # ------------------------------------------------------------------
     # Timing
