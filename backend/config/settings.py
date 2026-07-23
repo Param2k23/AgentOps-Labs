@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     app_port: int = 8000
     log_level: str = "INFO"
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    
+    # Upload directory
+    upload_dir: str = Field(default="storage/uploads", alias="UPLOAD_DIR")
 
     # Async DSN used by SQLAlchemy at runtime.
     # Development defaults to SQLite (async driver), production uses PostgreSQL.

@@ -60,6 +60,11 @@ class Document(BaseModel):
         nullable=True,
         doc="MIME-like type label: pdf | docx | txt | markdown | csv | json | xlsx.",
     )
+    content_type: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+        doc="Standard MIME type (e.g. application/pdf, text/plain).",
+    )
     department: Mapped[Optional[str]] = mapped_column(
         String(100),
         nullable=True,
@@ -86,6 +91,11 @@ class Document(BaseModel):
         JSON().with_variant(JSONB(), "postgresql"),
         nullable=True,
         doc="Arbitrary document-level metadata (indexing status, page count, …).",
+    )
+    extracted_text: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        doc="Raw text extracted from the document for indexing.",
     )
 
     # ------------------------------------------------------------------

@@ -18,6 +18,9 @@ sqlalchemy = { version = "^2.0", extras = ["asyncio"] }
 alembic = "^1.13"
 asyncpg = "^0.30"
 psycopg = {extras = ["binary"], version = "^3.3.4"}
+pypdf = "^6.14.2"
+python-docx = "^1.2.0"
+python-multipart = "^0.0.32"
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
