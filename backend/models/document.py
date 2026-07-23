@@ -109,4 +109,10 @@ class Document(BaseModel):
         doc="The World this document belongs to.",
     )
 
-    # chunks relationship will be added in Milestone 5 (Document Pipeline).
+    chunks: Mapped[list["DocumentChunk"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        "DocumentChunk",
+        back_populates="document",
+        cascade="all, delete-orphan",
+        lazy="select",
+        doc="The chunks of text extracted from this document.",
+    )

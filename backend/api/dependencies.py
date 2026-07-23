@@ -7,15 +7,29 @@ from repositories.world import WorldRepository
 from repositories.document import DocumentRepository
 from repositories.task import TaskRepository
 from repositories.evaluation_run import EvaluationRunRepository
+from repositories.document_chunk import DocumentChunkRepository
 from services.world import WorldService
 from services.document import DocumentService
 from services.task import TaskService
 from services.evaluation_run import EvaluationRunService
 from services.evaluation_engine import EvaluationEngineService
+from services.retrieval import RetrievalService
 
 
 def get_app_settings() -> Settings:
     return get_settings()
+
+
+def get_retrieval_service(db: AsyncSession = Depends(get_db)) -> RetrievalService:
+    """Provide a RetrievalService instance with injected dependencies."""
+    document_repo = DocumentRepository(session=db)
+    document_chunk_repo = DocumentChunkRepository(session=db)
+    task_repo = TaskRepository(session=db)
+    return RetrievalService(
+        document_repository=document_repo,
+        document_chunk_repository=document_chunk_repo,
+        task_repository=task_repo,
+    )
 
 
 def get_world_service(db: AsyncSession = Depends(get_db)) -> WorldService:
@@ -54,7 +68,10 @@ def get_evaluation_engine_service(db: AsyncSession = Depends(get_db)) -> Evaluat
     """Provide an EvaluationEngineService instance with injected dependencies."""
     eval_run_repo = EvaluationRunRepository(session=db)
     task_repo = TaskRepository(session=db)
+    retrieval_svc = get_retrieval_service(db)
     return EvaluationEngineService(
         evaluation_run_repository=eval_run_repo,
         task_repository=task_repo,
+        retrieval_service=retrieval_svc,
     )
+
