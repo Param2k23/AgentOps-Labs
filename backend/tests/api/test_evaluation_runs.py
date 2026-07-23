@@ -118,3 +118,23 @@ async def test_delete_evaluation_run(async_client: AsyncClient, sample_world: Wo
 
     get_response = await async_client.get(f"/api/v1/evaluation-runs/{eval_id}")
     assert get_response.status_code == 404
+
+@pytest.mark.asyncio
+async def test_execute_evaluation_run(async_client: AsyncClient, sample_world: World, sample_task: Task):
+    create_response = await async_client.post(
+        "/api/v1/evaluation-runs",
+        json={
+            "task_id": str(sample_task.id),
+            "world_id": str(sample_world.id)
+        }
+    )
+    eval_id = create_response.json()["id"]
+
+    execute_response = await async_client.post(f"/api/v1/evaluation-runs/{eval_id}/execute")
+    assert execute_response.status_code == 200
+    data = execute_response.json()
+    assert data["id"] == eval_id
+    assert data["status"] == "completed"
+    assert data["response"] is not None
+    assert data["overall_score"] is not None
+    assert data["accuracy"] is not None

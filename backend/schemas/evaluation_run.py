@@ -55,6 +55,7 @@ class EvaluationRunResponse(BaseModel):
     tool_success: Optional[float]
     overall_score: Optional[float]
     feedback: Optional[str]
+    response: Optional[str]
 
     started_at: Optional[datetime]
     completed_at: Optional[datetime]
