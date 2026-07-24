@@ -16,6 +16,7 @@ from services.evaluation_engine import EvaluationEngineService
 from services.embedding import EmbeddingService
 from services.retrieval import RetrievalService
 from services.llm import LLMService, GeminiProvider, ProviderInterface
+from services.judge import JudgeService
 
 
 def get_app_settings() -> Settings:
@@ -38,6 +39,10 @@ def get_llm_service() -> LLMService:
         timeout=settings.llm_timeout,
         temperature=settings.llm_temperature
     )
+
+def get_judge_service(llm_service: LLMService = Depends(get_llm_service)) -> JudgeService:
+    """Provide a JudgeService instance."""
+    return JudgeService(llm_service=llm_service)
 
 def get_embedding_service() -> EmbeddingService:
     """Provide a singleton EmbeddingService instance."""
@@ -96,6 +101,7 @@ def get_evaluation_engine_service(
     db: AsyncSession = Depends(get_db),
     retrieval_service: RetrievalService = Depends(get_retrieval_service),
     llm_service: LLMService = Depends(get_llm_service),
+    judge_service: JudgeService = Depends(get_judge_service),
 ) -> EvaluationEngineService:
     """Provide an EvaluationEngineService instance."""
     eval_run_repo = EvaluationRunRepository(session=db)
@@ -105,4 +111,5 @@ def get_evaluation_engine_service(
         task_repository=task_repo,
         retrieval_service=retrieval_service,
         llm_service=llm_service,
+        judge_service=judge_service,
     )

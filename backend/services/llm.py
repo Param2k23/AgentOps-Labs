@@ -159,3 +159,34 @@ class LLMService:
             latency_ms = int((end_time - start_time) * 1000)
             logger.error(f"LLM request failed after {latency_ms}ms. Error: {str(e)}")
             raise e
+
+    async def generate_raw(self, prompt: str) -> Dict[str, Any]:
+        """Generates a response using a raw provided prompt (bypassing default formatting).
+        Useful for custom instructions, like LLM-as-a-judge logic.
+        """
+        logger.info(f"Invoking LLM provider using model {self.model} with raw prompt")
+        
+        start_time = time.perf_counter()
+        
+        try:
+            result = await self.provider.generate(
+                prompt=prompt,
+                model=self.model,
+                timeout=self.timeout,
+                temperature=self.temperature
+            )
+            
+            end_time = time.perf_counter()
+            latency_ms = int((end_time - start_time) * 1000)
+            
+            result["latency_ms"] = latency_ms
+            
+            logger.info(f"Raw LLM request successful. Latency: {latency_ms}ms. Tokens: {result.get('total_tokens', 0)}")
+            
+            return result
+            
+        except Exception as e:
+            end_time = time.perf_counter()
+            latency_ms = int((end_time - start_time) * 1000)
+            logger.error(f"Raw LLM request failed after {latency_ms}ms. Error: {str(e)}")
+            raise e
