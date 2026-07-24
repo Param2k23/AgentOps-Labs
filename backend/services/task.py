@@ -41,6 +41,15 @@ class TaskService:
             raise NotFoundException(detail="Task not found.")
         return TaskResponse.model_validate(task)
 
+    async def update_task(self, task_id: UUID, data: dict) -> TaskResponse:
+        """Update an existing task."""
+        task = await self.task_repository.get(task_id)
+        if not task:
+            raise NotFoundException(detail="Task not found.")
+        
+        updated_task = await self.task_repository.update(task, **data)
+        return TaskResponse.model_validate(updated_task)
+
     async def get_all_tasks(self, skip: int = 0, limit: int = 100) -> Sequence[TaskResponse]:
         """Retrieve all tasks."""
         tasks = await self.task_repository.get_all(skip=skip, limit=limit)

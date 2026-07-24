@@ -21,6 +21,7 @@ async def test_judge_evaluate_success(judge_service, mock_llm_service):
         "citation_score": 80.0,
         "retrieval_score": 95.0,
         "hallucination_score": 10.0,
+        "tool_success": 100.0,
         "overall_score": 88.0,
         "feedback": "Good response.",
         "reasoning": "Accurate and well-grounded."
@@ -70,6 +71,7 @@ async def test_judge_evaluate_retry_success(judge_service, mock_llm_service):
         "citation_score": 80.0,
         "retrieval_score": 95.0,
         "hallucination_score": 10.0,
+        "tool_success": 100.0,
         "overall_score": 88.0,
         "feedback": "Fixed JSON.",
         "reasoning": "Reasoning provided."
