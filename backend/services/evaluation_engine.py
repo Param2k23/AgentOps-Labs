@@ -10,6 +10,7 @@ from schemas.evaluation_run import EvaluationRunResponse
 
 from services.retrieval import RetrievalService
 from services.llm import LLMService
+from services.judge import JudgeService, JudgeParsingException
 
 class EvaluationEngineService:
     """Service responsible for executing EvaluationRuns."""
@@ -20,11 +21,13 @@ class EvaluationEngineService:
         task_repository: TaskRepository,
         retrieval_service: RetrievalService,
         llm_service: LLMService,
+        judge_service: JudgeService,
     ):
         self.evaluation_run_repository = evaluation_run_repository
         self.task_repository = task_repository
         self.retrieval_service = retrieval_service
         self.llm_service = llm_service
+        self.judge_service = judge_service
 
     async def execute_run(self, eval_run_id: UUID) -> EvaluationRunResponse:
         """Executes the evaluation run and returns the updated run."""
@@ -68,10 +71,9 @@ class EvaluationEngineService:
             provider = llm_result.get("provider")
             model = llm_result.get("model")
             latency_ms = llm_result.get("latency_ms")
-            prompt_tokens = llm_result.get("prompt_tokens")
-            completion_tokens = llm_result.get("completion_tokens")
-            total_tokens = llm_result.get("total_tokens")
-            feedback = "Evaluation completed successfully."
+            prompt_tokens = llm_result.get("prompt_tokens", 0)
+            completion_tokens = llm_result.get("completion_tokens", 0)
+            total_tokens = llm_result.get("total_tokens", 0)
         except Exception as e:
             # Handle LLM failure gracefully
             await self.evaluation_run_repository.update(
@@ -82,19 +84,52 @@ class EvaluationEngineService:
             )
             return EvaluationRunResponse.model_validate(eval_run_model)
 
-        # 4. Evaluate the response against task's expected_output/rubric (Mock implementation)
-        # Using a deterministic random score based on string lengths for consistent behavior
-        base_seed = len(generated_response) + len(task.ground_truth or "") + len(task.rubric or "")
-        random.seed(base_seed)
-        
-        accuracy = round(random.uniform(70.0, 100.0), 2)
-        groundedness = round(random.uniform(70.0, 100.0), 2)
-        citation_score = round(random.uniform(60.0, 100.0), 2)
-        retrieval_score = round(random.uniform(60.0, 100.0), 2)
-        hallucination_score = round(random.uniform(0.0, 15.0), 2)
-        tool_success = round(random.uniform(80.0, 100.0), 2)
-        
-        overall_score = round((accuracy + groundedness + citation_score) / 3, 2)
+        # 4. Evaluate the response against task's expected_output/rubric (LLM-as-a-judge)
+        try:
+            judge_result = await self.judge_service.evaluate(
+                task_title=task.title or "Untitled Task",
+                task_description=task.description or "",
+                chunks=chunk_texts,
+                ground_truth=task.ground_truth,
+                rubric=task.rubric,
+                generated_response=generated_response
+            )
+            accuracy = judge_result.get("accuracy", 0.0)
+            groundedness = judge_result.get("groundedness", 0.0)
+            citation_score = judge_result.get("citation_score", 0.0)
+            retrieval_score = judge_result.get("retrieval_score", 0.0)
+            hallucination_score = judge_result.get("hallucination_score", 0.0)
+            overall_score = judge_result.get("overall_score", 0.0)
+            feedback = judge_result.get("feedback", "No feedback provided.")
+            
+            # Combine token usage from both generator and judge
+            prompt_tokens += judge_result.get("prompt_tokens", 0)
+            completion_tokens += judge_result.get("completion_tokens", 0)
+            total_tokens += judge_result.get("total_tokens", 0)
+            
+            # Use judge's model for final attribution if desired, or keep generator's model.
+            # We'll stick to generator's model, but update the total tokens.
+            latency_ms += judge_result.get("latency_ms", 0)
+            
+        except JudgeParsingException as e:
+            await self.evaluation_run_repository.update(
+                eval_run_model,
+                status="failed",
+                feedback=f"Judge Evaluation Failed: {str(e)}",
+                completed_at=datetime.now(timezone.utc)
+            )
+            return EvaluationRunResponse.model_validate(eval_run_model)
+        except Exception as e:
+            await self.evaluation_run_repository.update(
+                eval_run_model,
+                status="failed",
+                feedback=f"Judge Unexpected Error: {str(e)}",
+                completed_at=datetime.now(timezone.utc)
+            )
+            return EvaluationRunResponse.model_validate(eval_run_model)
+
+        # Tool success is not part of the standard metrics schema for now, keep default or 100
+        tool_success = 100.0
 
         # 5. Update EvaluationRun
         eval_run_model = await self.evaluation_run_repository.update(
