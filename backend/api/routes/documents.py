@@ -41,15 +41,30 @@ async def create_document(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
 
 
+from api.dependencies import get_retrieval_service
+from services.retrieval import RetrievalService
+
 @router.post("/worlds/{world_id}/upload", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
 async def upload_document(
     world_id: uuid.UUID,
     file: UploadFile = File(...),
     service: DocumentService = Depends(get_document_service),
+    retrieval_service: RetrievalService = Depends(get_retrieval_service),
 ) -> Any:
-    """Upload a new document to a world."""
+    """Upload a new document to a world, and automatically chunk/embed it."""
     try:
-        return await service.upload_document(world_id, file)
+        # Upload and extract text
+        document = await service.upload_document(world_id, file)
+        
+        # Automatically chunk and embed the document
+        try:
+            await retrieval_service.chunk_document(document.id, chunk_size=500)
+        except Exception as chunk_err:
+            # We still return the document but log the error or perhaps return a warning?
+            # For this prototype, we'll just print it. The document itself was uploaded.
+            print(f"Background chunking failed: {chunk_err}")
+            
+        return document
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
     except BadRequestException as e:
@@ -79,9 +94,6 @@ async def delete_document(
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
 
-
-from api.dependencies import get_retrieval_service
-from services.retrieval import RetrievalService
 
 @router.post("/chunks/reindex-all", status_code=status.HTTP_200_OK)
 async def reindex_all_chunks(

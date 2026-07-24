@@ -16,7 +16,8 @@ class JudgeResult(BaseModel):
     groundedness: float = Field(..., ge=0, le=100, description="Score between 0 and 100 for how well response is supported by context.")
     citation_score: float = Field(..., ge=0, le=100, description="Score between 0 and 100 for correct citation usage.")
     retrieval_score: float = Field(..., ge=0, le=100, description="Score between 0 and 100 for quality of retrieved context.")
-    hallucination_score: float = Field(..., ge=0, le=100, description="Score between 0 and 100 for presence of hallucinations (lower is better, or higher means less hallucination depending on metric - assume standard score where 0 means no hallucination and 100 means full hallucination, actually let's stick to 0-100 where 100 is best, wait, original mock is 0.0 to 15.0 for hallucination. We will just use 0-100 scale).")
+    hallucination_score: float = Field(..., ge=0, le=100, description="Score representing absence of hallucinations (100 = no hallucination, 0 = completely fabricated).")
+    tool_success: float = Field(..., ge=0, le=100, description="Score between 0 and 100 for tool execution success.")
     overall_score: float = Field(..., ge=0, le=100, description="Aggregate overall score between 0 and 100.")
     feedback: str = Field(..., description="Detailed textual feedback explaining the scores.")
     reasoning: Optional[str] = Field(default=None, description="Step-by-step reasoning for the assigned scores.")
@@ -48,17 +49,71 @@ class JudgeService:
             f"### Generated Response to Evaluate:\n{generated_response}\n\n"
             "### Instructions:\n"
             "Evaluate the Generated Response based on the Task Description, Retrieved Context, and Rubric.\n"
-            "You MUST output STRICT VALID JSON only. Do not wrap it in markdown block quotes (```json...```). "
-            "Do not include any other text before or after the JSON.\n\n"
-            "The JSON must have exactly the following keys, with numeric scores strictly between 0 and 100:\n"
-            "- accuracy (number)\n"
-            "- groundedness (number)\n"
-            "- citation_score (number)\n"
-            "- retrieval_score (number)\n"
-            "- hallucination_score (number, where 0 is perfect/no hallucination, or use the required scale)\n"
-            "- overall_score (number)\n"
-            "- feedback (string)\n"
-            "- reasoning (string)\n"
+            "You must calculate the following metrics, strictly between 0 and 100:\n"
+            "\n"
+            "1. Accuracy (0-100)\n"
+            "- Measure task completion against the task description, ground truth, and rubric.\n"
+            "- Missing major required sections should significantly reduce accuracy.\n"
+            "- Are the facts correct?\n"
+            "\n"
+            "2. Groundedness (0-100)\n"
+            "- Are all claims supported by the retrieved context?\n"
+            "- Penalize unsupported claims.\n"
+            "\n"
+            "3. Citation Score (0-100)\n"
+            "- Reward responses that actually use information from retrieved chunks.\n"
+            "- Penalize answers that ignore important retrieved evidence.\n"
+            "- If important retrieved facts are omitted, citation_score should decrease.\n"
+            "- If retrieved evidence is used well, citation_score should be high.\n"
+            "\n"
+            "4. Retrieval Score (0-100)\n"
+            "- Score how well the retrieval pipeline supplied enough information to answer the task.\n"
+            "- If retrieved chunks contain everything needed, retrieval_score should be near 100.\n"
+            "- Penalize ONLY when retrieval misses required evidence.\n"
+            "\n"
+            "5. Hallucination Score (0-100)\n"
+            "- Score represents the ABSENCE of hallucinations.\n"
+            "- 100 = No unsupported claims.\n"
+            "- 0 = Response is mostly fabricated.\n"
+            "- If every statement is grounded in retrieved chunks, hallucination_score should be 100.\n"
+            "- Do NOT confuse hallucination with missing information.\n"
+            "\n"
+            "6. Tool Success (0-100)\n"
+            "- Did the retrieval + generation pipeline execute successfully?\n"
+            "- If everything completed normally, score should generally be high.\n"
+            "\n"
+            "7. Overall Score\n"
+            "- Compute as a weighted average:\n"
+            "    Accuracy: 30%\n"
+            "    Groundedness: 20%\n"
+            "    Citation: 15%\n"
+            "    Retrieval: 15%\n"
+            "    Hallucination: 10%\n"
+            "    Tool Success: 10%\n"
+            "\n"
+            "8. Feedback\n"
+            "- Explain what was correct.\n"
+            "- Explain what was missing.\n"
+            "- Explain why each reduced metric lost points.\n"
+            "- Provide concrete suggestions for improvement.\n"
+            "\n"
+            "Return ONLY valid JSON.\n"
+            "Do NOT use markdown.\n"
+            "Do NOT wrap the JSON in ```json.\n"
+            "Do NOT include explanations before or after the JSON.\n"
+            "\n"
+            "The JSON schema must exactly be:\n"
+            "{\n"
+            "  \"accuracy\": number,\n"
+            "  \"groundedness\": number,\n"
+            "  \"citation_score\": number,\n"
+            "  \"retrieval_score\": number,\n"
+            "  \"hallucination_score\": number,\n"
+            "  \"tool_success\": number,\n"
+            "  \"overall_score\": number,\n"
+            "  \"feedback\": \"...\",\n"
+            "  \"reasoning\": \"...\"\n"
+            "}\n"
         )
         return prompt
 
@@ -110,6 +165,7 @@ class JudgeService:
         try:
             result = await self.llm_service.generate_raw(prompt)
             raw_text = result.get("text", "")
+            logger.info(f"Raw Judge Output: {raw_text}")
             judge_result = self._parse_json_result(raw_text)
         except JudgeParsingException as e:
             logger.warning(f"Judge output parsing failed. Retrying... Error: {str(e)}")
@@ -118,6 +174,7 @@ class JudgeService:
             try:
                 retry_result = await self.llm_service.generate_raw(retry_prompt)
                 raw_text = retry_result.get("text", "")
+                logger.info(f"Raw Judge Output (Retry): {raw_text}")
                 judge_result = self._parse_json_result(raw_text)
                 # Combine token usage from both calls if needed, but we can just use the retry's metadata for simplicity,
                 # or manually add them up. We will just append the total tokens.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, ServerCrash, Trash2, Activity } from "lucide-react";
 import { CreateEvaluationRunModal } from "./create-evaluation-run-modal";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,7 @@ export default function EvaluationRunsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const fetchRuns = async () => {
     setIsLoading(true);
@@ -129,7 +131,11 @@ export default function EvaluationRunsPage() {
             </TableHeader>
             <TableBody>
               {runs.map((run) => (
-                <TableRow key={run.id}>
+                <TableRow 
+                  key={run.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => router.push(`/evaluation-runs/${run.id}`)}
+                >
                   <TableCell className="font-medium">
                     {run.model_name ? run.model_name : <span className="text-muted-foreground">Unknown</span>}
                   </TableCell>
@@ -149,14 +155,16 @@ export default function EvaluationRunsPage() {
                     {new Date(run.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => deleteRun(run.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => deleteRun(run.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

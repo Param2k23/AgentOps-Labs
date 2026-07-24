@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, ServerCrash, Trash2, ListTodo } from "lucide-react";
 import { CreateTaskModal } from "./create-task-modal";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +33,7 @@ export default function TasksPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const fetchTasks = async () => {
     setIsLoading(true);
@@ -130,7 +132,11 @@ export default function TasksPage() {
             </TableHeader>
             <TableBody>
               {tasks.map((task) => (
-                <TableRow key={task.id}>
+                <TableRow 
+                  key={task.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => router.push(`/tasks/${task.id}`)}
+                >
                   <TableCell className="font-medium truncate max-w-[200px]" title={task.title}>
                     {task.title}
                   </TableCell>
@@ -148,15 +154,17 @@ export default function TasksPage() {
                     {new Date(task.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right flex items-center justify-end space-x-2">
-                    <TestRetrievalModal taskId={task.id} taskTitle={task.title} />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => deleteTask(task.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <TestRetrievalModal taskId={task.id} taskTitle={task.title} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:bg-destructive/10"
+                        onClick={() => deleteTask(task.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

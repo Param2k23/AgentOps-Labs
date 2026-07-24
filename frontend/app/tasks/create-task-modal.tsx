@@ -110,6 +110,11 @@ export function CreateTaskModal({ onSuccess }: { onSuccess: () => void }) {
       form.reset();
       setOpen(false);
       onSuccess();
+      
+      const responseData = await response.json();
+      if (responseData && responseData.id) {
+        window.location.href = `/tasks/${responseData.id}`;
+      }
     } catch {
       toast({
         variant: "destructive",

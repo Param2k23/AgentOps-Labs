@@ -51,6 +51,21 @@ async def get_task(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
 
 
+from schemas.task import TaskUpdate
+
+@router.put("/{task_id}", response_model=TaskResponse)
+async def update_task(
+    task_id: uuid.UUID,
+    data: TaskUpdate,
+    service: TaskService = Depends(get_task_service),
+) -> Any:
+    """Update a task by ID."""
+    try:
+        return await service.update_task(task_id, data.model_dump(exclude_unset=True))
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+
+
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(
     task_id: uuid.UUID,

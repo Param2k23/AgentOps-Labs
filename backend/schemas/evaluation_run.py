@@ -56,6 +56,11 @@ class EvaluationRunResponse(BaseModel):
     overall_score: Optional[float]
     feedback: Optional[str]
     response: Optional[str]
+    provider: Optional[str]
+    latency_ms: Optional[int]
+    prompt_tokens: Optional[int]
+    completion_tokens: Optional[int]
+    total_tokens: Optional[int]
 
     started_at: Optional[datetime]
     completed_at: Optional[datetime]
