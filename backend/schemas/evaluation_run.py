@@ -10,7 +10,7 @@ See DATABASE.md § evaluations and SRS.md § FR-10.
 
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -33,6 +33,10 @@ class EvaluationRunCreate(BaseModel):
         max_length=255,
         description="LLM identifier (e.g. gpt-4o, claude-sonnet-4-5).",
     )
+    experiment_id: Optional[uuid.UUID] = Field(
+        default=None,
+        description="UUID of the Experiment this run is part of.",
+    )
 
 
 class EvaluationRunResponse(BaseModel):
@@ -43,8 +47,9 @@ class EvaluationRunResponse(BaseModel):
     id: uuid.UUID
     task_id: uuid.UUID
     world_id: uuid.UUID
+    experiment_id: Optional[uuid.UUID]
     model_name: Optional[str]
-    status: str
+    status: Literal["pending", "running", "completed", "failed", "rate_limited", "timeout", "provider_error", "invalid_api_key"]
 
     # Metric scores — None until evaluation completes.
     accuracy: Optional[float]
@@ -56,6 +61,7 @@ class EvaluationRunResponse(BaseModel):
     overall_score: Optional[float]
     feedback: Optional[str]
     response: Optional[str]
+    error_message: Optional[str]
     provider: Optional[str]
     latency_ms: Optional[int]
     prompt_tokens: Optional[int]

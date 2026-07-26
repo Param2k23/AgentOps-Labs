@@ -27,6 +27,7 @@ type EvaluationRun = {
   prompt_tokens?: number;
   completion_tokens?: number;
   total_tokens?: number;
+  error_message?: string;
   created_at: string;
 };
 
@@ -112,8 +113,15 @@ export default function EvaluationRunDetailsPage() {
           <p className="text-sm text-muted-foreground">ID: {run.id}</p>
         </div>
         <div className="ml-auto flex gap-2">
-          <Badge variant={run.status === "completed" ? "default" : run.status === "failed" ? "destructive" : "secondary"} className="uppercase">
-            {run.status}
+          <Badge 
+            variant={
+              run.status === "completed" ? "default" : 
+              ["failed", "provider_error", "invalid_api_key"].includes(run.status) ? "destructive" : 
+              ["rate_limited", "timeout"].includes(run.status) ? "outline" : "secondary"
+            } 
+            className={`uppercase ${["rate_limited", "timeout"].includes(run.status) ? "border-orange-500 text-orange-500" : ""}`}
+          >
+            {run.status.replace("_", " ")}
           </Badge>
         </div>
       </div>
@@ -216,14 +224,14 @@ export default function EvaluationRunDetailsPage() {
         </div>
       )}
 
-      {run.status === "failed" && (
-        <Card className="border-destructive">
+      {["failed", "provider_error", "invalid_api_key", "rate_limited", "timeout"].includes(run.status) && (
+        <Card className={["rate_limited", "timeout"].includes(run.status) ? "border-orange-500" : "border-destructive"}>
           <CardHeader>
-            <CardTitle className="text-destructive">Execution Failed</CardTitle>
+            <CardTitle className={["rate_limited", "timeout"].includes(run.status) ? "text-orange-500" : "text-destructive"}>Execution Failed</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {run.feedback || "An unknown error occurred during execution."}
+              {run.error_message || run.feedback || "An unknown error occurred during execution."}
             </p>
           </CardContent>
         </Card>

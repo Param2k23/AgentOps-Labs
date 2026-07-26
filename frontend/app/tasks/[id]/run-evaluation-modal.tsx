@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Play } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +13,21 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+
+interface ModelInfo {
+  id: string;
+  display_name: string;
+  provider: string;
+  enabled: boolean;
+  supports_judge: boolean;
+}
 
 interface RunEvaluationModalProps {
   task: {
     id: string;
     world_id: string;
+    title: string;
   };
   onSuccess: () => void;
 }
@@ -26,46 +35,73 @@ interface RunEvaluationModalProps {
 export function RunEvaluationModal({ task, onSuccess }: RunEvaluationModalProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [model, setModel] = useState("gemini-2.5-flash");
+  const [models, setModels] = useState<ModelInfo[]>([]);
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
 
-  const handleRunEvaluation = async () => {
+  useEffect(() => {
+    if (open) {
+      fetchModels();
+    }
+  }, [open]);
+
+  const fetchModels = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/models");
+      if (res.ok) {
+        const data = await res.json();
+        setModels(data);
+        if (data.length > 0 && selectedModels.length === 0) {
+          setSelectedModels([data[0].id]);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch models", err);
+    }
+  };
+
+  const toggleModel = (modelId: string) => {
+    setSelectedModels(prev => 
+      prev.includes(modelId) 
+        ? prev.filter(id => id !== modelId) 
+        : [...prev, modelId]
+    );
+  };
+
+  const handleRunExperiment = async () => {
+    if (selectedModels.length === 0) {
+      toast({ title: "Error", description: "Select at least one model", variant: "destructive" });
+      return;
+    }
+    
     setLoading(true);
     try {
-      // 1. Create the Evaluation Run record
-      const createRes = await fetch("http://localhost:8000/api/v1/evaluation-runs", {
+      const res = await fetch("http://localhost:8000/api/v1/experiments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          name: `Experiment: ${task.title}`,
           task_id: task.id,
-          world_id: task.world_id,
-          model_name: model,
+          models: selectedModels,
         }),
       });
 
-      if (!createRes.ok) {
-        throw new Error("Failed to create evaluation run.");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Failed to start experiment.");
       }
 
-      const runData = await createRes.json();
-      const runId = runData.id;
-
-      // 2. Trigger the Execution
-      const execRes = await fetch(`http://localhost:8000/api/v1/evaluation-runs/${runId}/execute`, {
-        method: "POST",
-      });
-
-      if (!execRes.ok) {
-        throw new Error("Failed to execute evaluation run.");
-      }
+      const experiment = await res.json();
 
       toast({
-        title: "Evaluation Complete",
-        description: "The evaluation run has finished successfully.",
+        title: "Experiment Started",
+        description: "The evaluation runs are processing in the background.",
       });
 
       setOpen(false);
       onSuccess();
+      router.push(`/experiments/${experiment.id}`);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
       toast({
@@ -82,33 +118,34 @@ export function RunEvaluationModal({ task, onSuccess }: RunEvaluationModalProps)
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-full mt-4 gap-2">
-          <Play className="h-4 w-4" /> Run Evaluation
+          <Play className="h-4 w-4" /> Run Experiment
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Start Evaluation</DialogTitle>
+          <DialogTitle>Start Experiment</DialogTitle>
           <DialogDescription>
-            This will trigger the full AI pipeline using the context chunks for this task.
+            Select multiple models to evaluate and compare their performance side-by-side.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="model">Model</Label>
-            <Select value={model} onValueChange={setModel}>
-              <SelectTrigger id="model">
-                <SelectValue placeholder="Select a model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
-                <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="text-sm text-muted-foreground mt-2 border rounded-md p-3 bg-muted/20">
-            <p><strong>Note:</strong> Temperature and top-k are configured globally for this milestone.</p>
+          <div className="space-y-3 border rounded-md p-4 bg-card">
+            <Label>Select Models</Label>
+            <div className="flex flex-col gap-2 mt-2">
+              {models.length === 0 && <span className="text-sm text-muted-foreground">Loading models...</span>}
+              {models.map((model) => (
+                <label key={model.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-300"
+                    checked={selectedModels.includes(model.id)}
+                    onChange={() => toggleModel(model.id)}
+                  />
+                  {model.display_name}
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -116,9 +153,9 @@ export function RunEvaluationModal({ task, onSuccess }: RunEvaluationModalProps)
           <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
             Cancel
           </Button>
-          <Button onClick={handleRunEvaluation} disabled={loading} className="gap-2">
+          <Button onClick={handleRunExperiment} disabled={loading || selectedModels.length === 0} className="gap-2">
             {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-r-transparent" /> : <Play className="h-4 w-4" />}
-            {loading ? "Running..." : "Start"}
+            {loading ? "Starting..." : "Run Experiment"}
           </Button>
         </div>
       </DialogContent>

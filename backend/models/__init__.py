@@ -14,6 +14,7 @@ from models.document_chunk import DocumentChunk
 from models.evaluation_run import EvaluationRun
 from models.task import Task
 from models.world import World
+from models.experiment import Experiment
 
 __all__ = [
     "BaseModel",
@@ -23,4 +24,5 @@ __all__ = [
     "DocumentChunk",
     "Task",
     "EvaluationRun",
+    "Experiment",
 ]
