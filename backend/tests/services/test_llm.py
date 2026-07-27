@@ -20,8 +20,8 @@ def mock_provider():
 @pytest.fixture
 def llm_service(mock_provider):
     return LLMService(
-        provider=mock_provider,
-        model="test-model",
+        default_provider=mock_provider,
+        default_model="test-model",
         timeout=30,
         temperature=0.0
     )

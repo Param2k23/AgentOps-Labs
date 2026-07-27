@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # LLM Configuration
     llm_provider: str = Field(default="gemini", alias="LLM_PROVIDER")
     gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
+    openrouter_api_key: str | None = Field(default=None, alias="OPENROUTER_API_KEY")
     gemini_model: str = Field(default="gemini-2.5-flash", alias="GEMINI_MODEL")
     llm_timeout: int = Field(default=30, alias="LLM_TIMEOUT")
     llm_temperature: float = Field(default=0.0, alias="LLM_TEMPERATURE")

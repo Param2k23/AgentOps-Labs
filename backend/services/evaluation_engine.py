@@ -60,12 +60,12 @@ class EvaluationEngineService:
         except Exception:
             chunk_texts = []
 
-        # 3. Generate Model Response using real LLM
         try:
             llm_result = await self.llm_service.generate_response(
                 task_title=task.title or "Untitled Task",
                 task_description=task.description or "",
-                chunks=chunk_texts
+                chunks=chunk_texts,
+                model=eval_run_model.model_name
             )
             generated_response = llm_result.get("text", "")
             provider = llm_result.get("provider")
@@ -75,11 +75,26 @@ class EvaluationEngineService:
             completion_tokens = llm_result.get("completion_tokens", 0)
             total_tokens = llm_result.get("total_tokens", 0)
         except Exception as e:
+            from services.llm import LLMRateLimitException, LLMTimeoutException, LLMProviderException, LLMAuthException
+            if isinstance(e, LLMRateLimitException):
+                status = "rate_limited"
+            elif isinstance(e, LLMTimeoutException):
+                status = "timeout"
+            elif isinstance(e, LLMProviderException):
+                status = "provider_error"
+            elif isinstance(e, LLMAuthException):
+                status = "invalid_api_key"
+            else:
+                status = "failed"
+                
+            error_message = str(e)
+            
             # Handle LLM failure gracefully
             await self.evaluation_run_repository.update(
                 eval_run_model,
-                status="failed",
-                feedback=f"LLM Generation Failed: {str(e)}",
+                status=status,
+                error_message=error_message,
+                feedback=f"LLM Generation Failed: {error_message}",
                 completed_at=datetime.now(timezone.utc)
             )
             return EvaluationRunResponse.model_validate(eval_run_model)
@@ -115,6 +130,7 @@ class EvaluationEngineService:
             await self.evaluation_run_repository.update(
                 eval_run_model,
                 status="failed",
+                error_message=str(e),
                 feedback=f"Judge Evaluation Failed: {str(e)}",
                 completed_at=datetime.now(timezone.utc)
             )
@@ -123,6 +139,7 @@ class EvaluationEngineService:
             await self.evaluation_run_repository.update(
                 eval_run_model,
                 status="failed",
+                error_message=str(e),
                 feedback=f"Judge Unexpected Error: {str(e)}",
                 completed_at=datetime.now(timezone.utc)
             )

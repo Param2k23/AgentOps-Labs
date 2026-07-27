@@ -21,6 +21,7 @@ from models.base import BaseModel
 if TYPE_CHECKING:
     from models.evaluation_run import EvaluationRun
     from models.world import World
+    from models.experiment import Experiment
 
 
 class Task(BaseModel):
@@ -121,4 +122,11 @@ class Task(BaseModel):
         cascade="all, delete-orphan",
         lazy="selectin",
         doc="All evaluation runs executed against this task.",
+    )
+    experiments: Mapped[list["Experiment"]] = relationship(
+        "Experiment",
+        back_populates="task",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        doc="All experiments executed against this task.",
     )

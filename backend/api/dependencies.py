@@ -17,6 +17,8 @@ from services.embedding import EmbeddingService
 from services.retrieval import RetrievalService
 from services.llm import LLMService, GeminiProvider, ProviderInterface
 from services.judge import JudgeService
+from repositories.experiment import ExperimentRepository
+from services.experiment import ExperimentService
 
 
 def get_app_settings() -> Settings:
@@ -34,8 +36,8 @@ def get_llm_service() -> LLMService:
         provider = GeminiProvider(api_key=settings.gemini_api_key)
         
     return LLMService(
-        provider=provider,
-        model=settings.gemini_model,
+        default_provider=provider,
+        default_model=settings.gemini_model,
         timeout=settings.llm_timeout,
         temperature=settings.llm_temperature
     )
@@ -112,4 +114,12 @@ def get_evaluation_engine_service(
         retrieval_service=retrieval_service,
         llm_service=llm_service,
         judge_service=judge_service,
+    )
+
+def get_experiment_service(db: AsyncSession = Depends(get_db)) -> ExperimentService:
+    """Provide an ExperimentService instance."""
+    return ExperimentService(
+        experiment_repository=ExperimentRepository(session=db),
+        evaluation_run_repository=EvaluationRunRepository(session=db),
+        task_repository=TaskRepository(session=db)
     )

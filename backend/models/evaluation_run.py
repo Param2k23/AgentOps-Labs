@@ -22,6 +22,7 @@ from models.base import BaseModel
 
 if TYPE_CHECKING:
     from models.task import Task
+    from models.experiment import Experiment
 
 
 class EvaluationRun(BaseModel):
@@ -58,6 +59,12 @@ class EvaluationRun(BaseModel):
         nullable=False,
         index=False,  # covered by ix_evaluation_runs_world_id
         doc="Denormalized FK to the World (avoids join through tasks in leaderboard queries).",
+    )
+    experiment_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("experiments.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+        doc="Optional FK to the Experiment this run is part of.",
     )
     model_name: Mapped[Optional[str]] = mapped_column(
         String(255),
@@ -121,6 +128,11 @@ class EvaluationRun(BaseModel):
         nullable=True,
         doc="The generated response from the LLM.",
     )
+    error_message: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        doc="Human-readable reason if the run failed or was rate limited.",
+    )
 
     # ------------------------------------------------------------------
     # Timing
@@ -175,4 +187,10 @@ class EvaluationRun(BaseModel):
         back_populates="evaluation_runs",
         lazy="select",
         doc="The Task this run evaluates.",
+    )
+    experiment: Mapped[Optional["Experiment"]] = relationship(
+        "Experiment",
+        back_populates="evaluation_runs",
+        lazy="select",
+        doc="The Experiment this run is part of.",
     )
