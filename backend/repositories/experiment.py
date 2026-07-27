@@ -22,3 +22,13 @@ class ExperimentRepository(BaseRepository[Experiment]):
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def get_all_with_runs_and_tasks(self) -> Sequence[Experiment]:
+        """Get all experiments with their tasks and evaluation runs loaded."""
+        stmt = (
+            select(Experiment)
+            .options(selectinload(Experiment.evaluation_runs), selectinload(Experiment.task))
+            .order_by(Experiment.created_at.desc())
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

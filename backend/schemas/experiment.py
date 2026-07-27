@@ -37,3 +37,17 @@ class ExperimentCompareResponse(BaseModel):
     experiment: ExperimentResponse
     runs: List[EvaluationRunResponse]
     summary: ExperimentCompareSummary
+
+class ExperimentListResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    description: Optional[str]
+    task_name: str
+    created_at: datetime
+    updated_at: datetime
+    status: str
+    total_runs: int
+    completed_runs: int
+    failed_runs: int
+    best_overall_score: Optional[float]
+    models: List[str]

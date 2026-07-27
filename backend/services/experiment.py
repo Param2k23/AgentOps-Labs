@@ -142,3 +142,54 @@ class ExperimentService:
             summary["lowest_estimated_cost"] = min(completed_runs, key=lambda r: (r.total_tokens if r.total_tokens is not None else float('inf'))).model_name
             
         return {"experiment": experiment, "runs": runs, "summary": summary}
+
+    async def get_all_experiments(self) -> List[dict]:
+        experiments = await self.experiment_repository.get_all_with_runs_and_tasks()
+        
+        results = []
+        for exp in experiments:
+            runs = exp.evaluation_runs
+            total_runs = len(runs)
+            completed_runs = sum(1 for r in runs if r.status == "completed")
+            failed_runs = sum(1 for r in runs if r.status in ["failed", "provider_error", "invalid_api_key"])
+            pending_runs = sum(1 for r in runs if r.status == "pending")
+            running_runs = sum(1 for r in runs if r.status == "running")
+            
+            # Status logic
+            if total_runs == 0:
+                status = "pending"
+            elif pending_runs == total_runs:
+                status = "pending"
+            elif completed_runs == total_runs:
+                status = "completed"
+            elif failed_runs == total_runs:
+                status = "failed"
+            elif completed_runs > 0 and (completed_runs + failed_runs == total_runs):
+                status = "partial"
+            else:
+                status = "running"
+                
+            models = list(set(r.model_name for r in runs if r.model_name))
+            
+            best_overall_score = None
+            if completed_runs > 0:
+                scores = [float(r.overall_score) for r in runs if r.status == "completed" and r.overall_score is not None]
+                if scores:
+                    best_overall_score = max(scores)
+            
+            results.append({
+                "id": exp.id,
+                "name": exp.name,
+                "description": exp.description,
+                "task_name": exp.task.title if exp.task else "Unknown Task",
+                "created_at": exp.created_at,
+                "updated_at": exp.updated_at,
+                "status": status,
+                "total_runs": total_runs,
+                "completed_runs": completed_runs,
+                "failed_runs": failed_runs,
+                "best_overall_score": best_overall_score,
+                "models": models,
+            })
+            
+        return results

@@ -4,10 +4,17 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 
 from api.dependencies import get_experiment_service
-from schemas.experiment import ExperimentCreate, ExperimentResponse, ExperimentCompareResponse
+from schemas.experiment import ExperimentCreate, ExperimentResponse, ExperimentCompareResponse, ExperimentListResponse
 from services.experiment import ExperimentService
 
 router = APIRouter(prefix="/experiments", tags=["experiments"])
+
+@router.get("", response_model=list[ExperimentListResponse])
+async def get_experiments(
+    service: ExperimentService = Depends(get_experiment_service),
+) -> Any:
+    """Get a list of all experiments."""
+    return await service.get_all_experiments()
 
 @router.post("", response_model=ExperimentResponse, status_code=status.HTTP_201_CREATED)
 async def create_experiment(
