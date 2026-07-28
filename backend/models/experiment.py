@@ -10,6 +10,7 @@ from models.base import BaseModel
 if TYPE_CHECKING:
     from models.task import Task
     from models.evaluation_run import EvaluationRun
+    from models.prompt_template import PromptTemplate
 
 
 class Experiment(BaseModel):
@@ -40,6 +41,13 @@ class Experiment(BaseModel):
         doc="FK to the Task being evaluated.",
     )
 
+    prompt_template_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("prompt_templates.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        doc="Optional FK to the PromptTemplate used for this experiment.",
+    )
+
     task: Mapped["Task"] = relationship(
         "Task",
         back_populates="experiments",
@@ -53,4 +61,11 @@ class Experiment(BaseModel):
         cascade="all, delete-orphan",
         lazy="select",
         doc="The individual runs part of this experiment.",
+    )
+
+    prompt_template: Mapped[Optional["PromptTemplate"]] = relationship(
+        "PromptTemplate",
+        back_populates="experiments",
+        lazy="select",
+        doc="The PromptTemplate used for this experiment.",
     )

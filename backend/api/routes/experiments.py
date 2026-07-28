@@ -29,7 +29,8 @@ async def create_experiment(
             description=data.description,
             task_id=data.task_id,
             models=data.models,
-            background_tasks=background_tasks
+            background_tasks=background_tasks,
+            prompt_template_id=data.prompt_template_id
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

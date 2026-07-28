@@ -207,40 +207,20 @@ class LLMService:
             return self._providers.get(provider_type, self.default_provider)
         return self.default_provider
         
-    def _build_prompt(self, task_title: str, task_description: str, chunks: List[str]) -> str:
-        """Constructs the structured prompt."""
-        context_str = "\n\n".join(chunks) if chunks else "No relevant context found."
-        
-        prompt = (
-            "You are an enterprise AI assistant.\n\n"
-            f"Task:\nTitle: {task_title}\n"
-            f"Description: {task_description}\n\n"
-            f"Relevant Context:\n{context_str}\n\n"
-            "Instructions:\n"
-            "Only answer using the provided context whenever possible. Do not invent information.\n\n"
-            "Answer:\n"
-        )
-        return prompt
-
     async def generate_response(
         self, 
-        task_title: str, 
-        task_description: str, 
-        chunks: List[str],
+        prompt: str, 
         model: Optional[str] = None
     ) -> Dict[str, Any]:
         """Generates a response using the injected provider.
         
         Args:
-            task_title: The title of the task.
-            task_description: The description of the task.
-            chunks: List of relevant context chunks.
+            prompt: The full prompt string to send to the model.
             model: Optional model to override the default.
             
         Returns:
             Dict containing the generated text, metadata, and latency.
         """
-        prompt = self._build_prompt(task_title, task_description, chunks)
         target_model = model or self.default_model
         
         logger.info(f"Invoking LLM provider using model {target_model}")

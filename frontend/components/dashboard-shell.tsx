@@ -12,6 +12,7 @@ import {
   Trophy,
   FileText,
   Beaker,
+  FileCode2,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -24,6 +25,7 @@ const navigationItems = [
   { label: 'Worlds', href: '/worlds', icon: Globe2 },
   { label: 'Documents', href: '/documents', icon: FileText },
   { label: 'Tasks', href: '/tasks', icon: ScrollText },
+  { label: 'Prompt Library', href: '/prompt-templates', icon: FileCode2 },
   { label: 'Experiments', href: '/experiments', icon: Beaker },
   { label: 'Runs', href: '/runs', icon: PlaySquare },
   { label: 'Leaderboard', href: '/leaderboard', icon: Trophy },
