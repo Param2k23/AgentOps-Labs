@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config.settings import Settings, get_settings
 from core.database import get_db
 from repositories.world import WorldRepository
+from repositories.document_chunk import DocumentChunkRepository
 from repositories.document import DocumentRepository
 from repositories.task import TaskRepository
 from repositories.evaluation_run import EvaluationRunRepository
@@ -29,15 +30,17 @@ def get_llm_service() -> LLMService:
     settings = get_settings()
     
     provider: ProviderInterface
-    if settings.llm_provider.lower() == "gemini":
-        provider = GeminiProvider(api_key=settings.gemini_api_key)
+    if settings.llm_provider.lower() == "openrouter":
+        from services.llm import OpenRouterProvider
+        provider = OpenRouterProvider(api_key=settings.openrouter_api_key)
+        default_model = "google/gemma-4-31b-it:free"
     else:
-        # Fallback to Gemini for now
         provider = GeminiProvider(api_key=settings.gemini_api_key)
+        default_model = settings.gemini_model
         
     return LLMService(
         default_provider=provider,
-        default_model=settings.gemini_model,
+        default_model=default_model,
         timeout=settings.llm_timeout,
         temperature=settings.llm_temperature
     )
@@ -77,7 +80,12 @@ def get_document_service(db: AsyncSession = Depends(get_db)) -> DocumentService:
     """Provide a DocumentService instance with injected dependencies."""
     document_repo = DocumentRepository(session=db)
     world_repo = WorldRepository(session=db)
-    return DocumentService(document_repository=document_repo, world_repository=world_repo)
+    chunk_repo = DocumentChunkRepository(session=db)
+    return DocumentService(
+        document_repository=document_repo,
+        world_repository=world_repo,
+        document_chunk_repository=chunk_repo,
+    )
 
 
 def get_task_service(db: AsyncSession = Depends(get_db)) -> TaskService:

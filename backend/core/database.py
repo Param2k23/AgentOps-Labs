@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 from config.settings import get_settings
 
@@ -26,12 +27,22 @@ _settings = get_settings()
 # ---------------------------------------------------------------------------
 # pool_pre_ping=True ensures stale connections are recycled gracefully,
 # which matters during long idle periods in local development.
+if _settings.database_url.startswith("sqlite"):
+    engine_kwargs = {
+        "echo": _settings.app_env == "development",
+        "poolclass": NullPool,
+    }
+else:
+    engine_kwargs = {
+        "echo": _settings.app_env == "development",
+        "pool_pre_ping": True,
+        "pool_size": 20,
+        "max_overflow": 40,
+    }
+
 engine = create_async_engine(
     _settings.database_url,
-    echo=_settings.app_env == "development",
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
+    **engine_kwargs
 )
 
 # ---------------------------------------------------------------------------
