@@ -21,6 +21,7 @@ export function ComparisonTable({ runs, onRowClick }: { runs: any[], onRowClick:
             <TableHeader>
               <TableRow>
                 <TableHead>Model</TableHead>
+                <TableHead>Prompt</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Overall</TableHead>
                 <TableHead>Accuracy</TableHead>
@@ -39,6 +40,15 @@ export function ComparisonTable({ runs, onRowClick }: { runs: any[], onRowClick:
                   onClick={() => onRowClick(run.id)}
                 >
                   <TableCell className="font-medium whitespace-nowrap">{run.model_name}</TableCell>
+                  <TableCell className="whitespace-nowrap text-muted-foreground text-xs">
+                    {run.prompt_template_name ? (
+                      <span title={`${run.prompt_template_name} v${run.prompt_template_version}`}>
+                        {run.prompt_template_name} v{run.prompt_template_version}
+                      </span>
+                    ) : (
+                      "Default"
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1 items-start">
                       <Badge 

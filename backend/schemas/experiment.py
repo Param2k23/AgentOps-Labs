@@ -11,6 +11,7 @@ class ExperimentCreate(BaseModel):
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
     task_id: uuid.UUID
+    prompt_template_id: Optional[uuid.UUID] = None
     models: List[str] = Field(..., min_length=1, description="List of model names to evaluate")
 
 class ExperimentResponse(BaseModel):
@@ -20,6 +21,7 @@ class ExperimentResponse(BaseModel):
     name: str
     description: Optional[str]
     task_id: uuid.UUID
+    prompt_template_id: Optional[uuid.UUID]
     created_at: datetime
     updated_at: datetime
     
@@ -50,4 +52,6 @@ class ExperimentListResponse(BaseModel):
     completed_runs: int
     failed_runs: int
     best_overall_score: Optional[float]
+    prompt_template_name: Optional[str]
+    prompt_template_version: Optional[int]
     models: List[str]

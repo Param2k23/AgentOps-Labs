@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from models.experiment import Experiment
+from models.evaluation_run import EvaluationRun
 from repositories.base import BaseRepository
 
 
@@ -17,7 +18,9 @@ class ExperimentRepository(BaseRepository[Experiment]):
         """Get an experiment with its evaluation runs loaded."""
         stmt = (
             select(Experiment)
-            .options(selectinload(Experiment.evaluation_runs))
+            .options(
+                selectinload(Experiment.evaluation_runs).selectinload(EvaluationRun.prompt_template)
+            )
             .where(Experiment.id == id)
         )
         result = await self.session.execute(stmt)
@@ -27,7 +30,10 @@ class ExperimentRepository(BaseRepository[Experiment]):
         """Get all experiments with their tasks and evaluation runs loaded."""
         stmt = (
             select(Experiment)
-            .options(selectinload(Experiment.evaluation_runs), selectinload(Experiment.task))
+            .options(
+                selectinload(Experiment.evaluation_runs).selectinload(EvaluationRun.prompt_template), 
+                selectinload(Experiment.task)
+            )
             .order_by(Experiment.created_at.desc())
         )
         result = await self.session.execute(stmt)

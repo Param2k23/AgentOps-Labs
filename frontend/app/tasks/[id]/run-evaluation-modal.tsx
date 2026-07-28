@@ -23,6 +23,13 @@ interface ModelInfo {
   supports_judge: boolean;
 }
 
+interface PromptTemplate {
+  id: string;
+  name: string;
+  version: number;
+  is_default: boolean;
+}
+
 interface RunEvaluationModalProps {
   task: {
     id: string;
@@ -37,12 +44,15 @@ export function RunEvaluationModal({ task, onSuccess }: RunEvaluationModalProps)
   const [loading, setLoading] = useState(false);
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [templates, setTemplates] = useState<PromptTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
     if (open) {
       fetchModels();
+      fetchTemplates();
     }
   }, [open]);
 
@@ -58,6 +68,24 @@ export function RunEvaluationModal({ task, onSuccess }: RunEvaluationModalProps)
       }
     } catch (err) {
       console.error("Failed to fetch models", err);
+    }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/prompt-templates");
+      if (res.ok) {
+        const data = await res.json();
+        setTemplates(data);
+        const def = data.find((t: PromptTemplate) => t.is_default);
+        if (def) {
+          setSelectedTemplate(def.id);
+        } else if (data.length > 0) {
+          setSelectedTemplate(data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch templates", err);
     }
   };
 
@@ -84,6 +112,7 @@ export function RunEvaluationModal({ task, onSuccess }: RunEvaluationModalProps)
           name: `Experiment: ${task.title}`,
           task_id: task.id,
           models: selectedModels,
+          prompt_template_id: selectedTemplate || null,
         }),
       });
 
@@ -146,6 +175,20 @@ export function RunEvaluationModal({ task, onSuccess }: RunEvaluationModalProps)
                 </label>
               ))}
             </div>
+          </div>
+          
+          <div className="space-y-3 border rounded-md p-4 bg-card">
+            <Label>Prompt Template</Label>
+            <select
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={selectedTemplate}
+              onChange={(e) => setSelectedTemplate(e.target.value)}
+            >
+              <option value="" disabled>Select a template</option>
+              {templates.map(t => (
+                <option key={t.id} value={t.id}>{t.name} (v{t.version}){t.is_default ? ' - Default' : ''}</option>
+              ))}
+            </select>
           </div>
         </div>
 

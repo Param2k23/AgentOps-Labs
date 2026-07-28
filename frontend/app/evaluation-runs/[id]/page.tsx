@@ -12,6 +12,8 @@ type EvaluationRun = {
   id: string;
   task_id: string;
   world_id: string;
+  prompt_template_name?: string | null;
+  prompt_template_version?: number | null;
   model_name?: string;
   status: string;
   accuracy?: number;
@@ -134,6 +136,11 @@ export default function EvaluationRunDetailsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{run.model_name || "Unknown"}</div>
+            {run.prompt_template_name && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Prompt: {run.prompt_template_name} v{run.prompt_template_version}
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>

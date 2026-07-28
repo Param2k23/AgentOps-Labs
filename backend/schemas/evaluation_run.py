@@ -37,6 +37,10 @@ class EvaluationRunCreate(BaseModel):
         default=None,
         description="UUID of the Experiment this run is part of.",
     )
+    prompt_template_id: Optional[uuid.UUID] = Field(
+        default=None,
+        description="UUID of the PromptTemplate used for this run.",
+    )
 
 
 class EvaluationRunResponse(BaseModel):
@@ -48,6 +52,9 @@ class EvaluationRunResponse(BaseModel):
     task_id: uuid.UUID
     world_id: uuid.UUID
     experiment_id: Optional[uuid.UUID]
+    prompt_template_id: Optional[uuid.UUID]
+    prompt_template_name: Optional[str] = None
+    prompt_template_version: Optional[int] = None
     model_name: Optional[str]
     status: Literal["pending", "running", "completed", "failed", "rate_limited", "timeout", "provider_error", "invalid_api_key"]
 

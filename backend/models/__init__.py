@@ -15,6 +15,7 @@ from models.evaluation_run import EvaluationRun
 from models.task import Task
 from models.world import World
 from models.experiment import Experiment
+from models.prompt_template import PromptTemplate
 
 __all__ = [
     "BaseModel",
@@ -25,4 +26,5 @@ __all__ = [
     "Task",
     "EvaluationRun",
     "Experiment",
+    "PromptTemplate",
 ]

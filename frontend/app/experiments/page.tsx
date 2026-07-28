@@ -6,7 +6,7 @@ import { PageShell } from "@/components/page-shell";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Beaker, Calendar, CheckCircle2, Clock, Cpu, ServerCrash, Trophy, XCircle } from "lucide-react";
+import { ArrowRight, Beaker, Calendar, CheckCircle2, Clock, Cpu, ServerCrash, Trophy, XCircle, FileCode2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -22,6 +22,8 @@ type Experiment = {
   completed_runs: number;
   failed_runs: number;
   best_overall_score: number | null;
+  prompt_template_name: string | null;
+  prompt_template_version: number | null;
   models: string[];
 };
 
@@ -151,6 +153,20 @@ export default function ExperimentsPage() {
                         <span title={exp.models.join(", ")}>{exp.models.length} Models</span>
                       ) : (
                         "None"
+                      )}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-muted-foreground flex items-center gap-1">
+                      <FileCode2 className="h-3 w-3" /> Prompt
+                    </p>
+                    <p className="font-medium line-clamp-1">
+                      {exp.prompt_template_name ? (
+                        <span title={`${exp.prompt_template_name} v${exp.prompt_template_version}`}>
+                          {exp.prompt_template_name} v{exp.prompt_template_version}
+                        </span>
+                      ) : (
+                        "Default"
                       )}
                     </p>
                   </div>

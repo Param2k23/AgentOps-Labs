@@ -12,6 +12,7 @@ from repositories.evaluation_run import EvaluationRunRepository
 from repositories.task import TaskRepository
 from repositories.document import DocumentRepository
 from repositories.document_chunk import DocumentChunkRepository
+from repositories.prompt_template import PromptTemplateRepository
 from services.evaluation_engine import EvaluationEngineService
 from services.retrieval import RetrievalService
 from services.embedding import EmbeddingService
@@ -29,6 +30,7 @@ async def execute_run_in_background(run_id: uuid.UUID):
         
         doc_repo = DocumentRepository(session=session)
         chunk_repo = DocumentChunkRepository(session=session)
+        prompt_repo = PromptTemplateRepository(session=session)
         embedding_svc = EmbeddingService()
         retrieval_svc = RetrievalService(doc_repo, chunk_repo, task_repo, embedding_svc)
         
@@ -45,6 +47,7 @@ async def execute_run_in_background(run_id: uuid.UUID):
         engine = EvaluationEngineService(
             evaluation_run_repository=eval_run_repo,
             task_repository=task_repo,
+            prompt_template_repository=prompt_repo,
             retrieval_service=retrieval_svc,
             llm_service=llm_svc,
             judge_service=judge_svc,
@@ -73,7 +76,8 @@ class ExperimentService:
         description: str | None, 
         task_id: uuid.UUID, 
         models: List[str],
-        background_tasks: BackgroundTasks
+        background_tasks: BackgroundTasks,
+        prompt_template_id: uuid.UUID | None = None
     ) -> Experiment:
         task = await self.task_repository.get(task_id)
         if not task:
@@ -90,6 +94,7 @@ class ExperimentService:
             name=name,
             description=description,
             task_id=task_id,
+            prompt_template_id=prompt_template_id,
         )
         
         for model in models:
@@ -97,6 +102,7 @@ class ExperimentService:
                 task_id=task_id,
                 world_id=task.world_id,
                 experiment_id=experiment.id,
+                prompt_template_id=prompt_template_id,
                 model_name=model,
                 status="pending",
             )
@@ -144,7 +150,22 @@ class ExperimentService:
         return {"experiment": experiment, "runs": runs, "summary": summary}
 
     async def get_all_experiments(self) -> List[dict]:
-        experiments = await self.experiment_repository.get_all_with_runs_and_tasks()
+        from sqlalchemy.orm import selectinload
+        from sqlalchemy import select
+        from models.experiment import Experiment
+        
+        # We need to load prompt_template as well
+        stmt = (
+            select(Experiment)
+            .options(
+                selectinload(Experiment.evaluation_runs), 
+                selectinload(Experiment.task),
+                selectinload(Experiment.prompt_template)
+            )
+            .order_by(Experiment.created_at.desc())
+        )
+        result = await self.experiment_repository.session.execute(stmt)
+        experiments = result.scalars().all()
         
         results = []
         for exp in experiments:
@@ -189,6 +210,8 @@ class ExperimentService:
                 "completed_runs": completed_runs,
                 "failed_runs": failed_runs,
                 "best_overall_score": best_overall_score,
+                "prompt_template_name": exp.prompt_template.name if exp.prompt_template else None,
+                "prompt_template_version": exp.prompt_template.version if exp.prompt_template else None,
                 "models": models,
             })
             

@@ -23,6 +23,7 @@ from models.base import BaseModel
 if TYPE_CHECKING:
     from models.task import Task
     from models.experiment import Experiment
+    from models.prompt_template import PromptTemplate
 
 
 class EvaluationRun(BaseModel):
@@ -65,6 +66,12 @@ class EvaluationRun(BaseModel):
         nullable=True,
         index=True,
         doc="Optional FK to the Experiment this run is part of.",
+    )
+    prompt_template_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("prompt_templates.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        doc="FK to the PromptTemplate used for this run.",
     )
     model_name: Mapped[Optional[str]] = mapped_column(
         String(255),
@@ -194,3 +201,17 @@ class EvaluationRun(BaseModel):
         lazy="select",
         doc="The Experiment this run is part of.",
     )
+    prompt_template: Mapped[Optional["PromptTemplate"]] = relationship(
+        "PromptTemplate",
+        back_populates="evaluation_runs",
+        lazy="select",
+        doc="The PromptTemplate used for this run.",
+    )
+
+    @property
+    def prompt_template_name(self) -> Optional[str]:
+        return self.prompt_template.name if self.prompt_template else None
+
+    @property
+    def prompt_template_version(self) -> Optional[int]:
+        return self.prompt_template.version if self.prompt_template else None

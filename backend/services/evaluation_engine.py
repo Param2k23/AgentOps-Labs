@@ -11,6 +11,8 @@ from schemas.evaluation_run import EvaluationRunResponse
 from services.retrieval import RetrievalService
 from services.llm import LLMService
 from services.judge import JudgeService, JudgeParsingException
+from services.prompt_builder import PromptBuilder
+from repositories.prompt_template import PromptTemplateRepository
 
 class EvaluationEngineService:
     """Service responsible for executing EvaluationRuns."""
@@ -19,12 +21,14 @@ class EvaluationEngineService:
         self,
         evaluation_run_repository: EvaluationRunRepository,
         task_repository: TaskRepository,
+        prompt_template_repository: PromptTemplateRepository,
         retrieval_service: RetrievalService,
         llm_service: LLMService,
         judge_service: JudgeService,
     ):
         self.evaluation_run_repository = evaluation_run_repository
         self.task_repository = task_repository
+        self.prompt_template_repository = prompt_template_repository
         self.retrieval_service = retrieval_service
         self.llm_service = llm_service
         self.judge_service = judge_service
@@ -60,11 +64,27 @@ class EvaluationEngineService:
         except Exception:
             chunk_texts = []
 
+        # Load Prompt Template
+        if eval_run_model.prompt_template_id:
+            prompt_template = await self.prompt_template_repository.get(eval_run_model.prompt_template_id)
+        else:
+            prompt_template = await self.prompt_template_repository.get_default()
+
+        if not prompt_template:
+            await self.evaluation_run_repository.update(eval_run_model, status="failed", feedback="Prompt template not found")
+            raise NotFoundException(detail="Prompt template not found.")
+
+        # Build prompt
+        prompt = PromptBuilder.build(
+            template=prompt_template,
+            task_title=task.title or "Untitled Task",
+            task_description=task.description or "",
+            chunks=chunk_texts
+        )
+
         try:
             llm_result = await self.llm_service.generate_response(
-                task_title=task.title or "Untitled Task",
-                task_description=task.description or "",
-                chunks=chunk_texts,
+                prompt=prompt,
                 model=eval_run_model.model_name
             )
             generated_response = llm_result.get("text", "")
