@@ -96,3 +96,7 @@ class DocumentResponse(BaseModel):
     extracted_text: Optional[str]
     created_at: datetime
     updated_at: datetime
+
+class DocumentStatsResponse(BaseModel):
+    chunk_count: int
+    page_count: int

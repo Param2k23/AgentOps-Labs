@@ -1,0 +1,571 @@
+{
+  "ingestion": {
+    "documents_processed": 8,
+    "pages_processed": 9,
+    "chunks_generated": 64,
+    "ingestion_time_seconds": 0.9067678451538086
+  },
+  "evaluation": {
+    "experiments_executed": 30,
+    "runs_executed": 30,
+    "average_score": 0.0,
+    "accuracy": 0.0,
+    "groundedness": 0.0,
+    "retrieval_score": 0.0,
+    "hallucination": 0.0,
+    "successful_runs": 0,
+    "failed_runs": 0,
+    "evaluation_time_seconds": 301.2150819301605
+  },
+  "model": {
+    "average_latency_ms": 0.0,
+    "p95_latency_ms": 0,
+    "average_tokens": 0.0,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "success_rate_percent": 0.0
+  },
+  "benchmark_runs": [],
+  "exp_stats": {
+    "7d6e126d-5058-48c1-a593-d8c191054c26": {
+      "id": "7d6e126d-5058-48c1-a593-d8c191054c26",
+      "name": "Benchmark Exp 5edeaed8",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Paid Holidays Retrieval",
+      "created_at": "2026-07-28T14:41:24",
+      "updated_at": "2026-07-28T14:41:24",
+      "status": "completed",
+      "total_runs": 1,
+      "completed_runs": 1,
+      "failed_runs": 0,
+      "best_overall_score": 100.0,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "nvidia/nemotron-3-super-120b-a12b:free"
+      ]
+    },
+    "7b1ffb76-c5d1-44f9-b460-7586325be8ef": {
+      "id": "7b1ffb76-c5d1-44f9-b460-7586325be8ef",
+      "name": "Benchmark Exp 24dc8706",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Determine Disciplinary Actions for Policy Violations",
+      "created_at": "2026-07-28T14:43:25",
+      "updated_at": "2026-07-28T14:43:25",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "2291de30-401a-4fb5-94cd-13ef6e18d0aa": {
+      "id": "2291de30-401a-4fb5-94cd-13ef6e18d0aa",
+      "name": "Benchmark Exp 5afaac02",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Identify Protected Characteristics under EEO",
+      "created_at": "2026-07-28T14:43:22",
+      "updated_at": "2026-07-28T14:43:22",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "5e58d1d6-f2be-45f5-84da-76e9c0b02b58": {
+      "id": "5e58d1d6-f2be-45f5-84da-76e9c0b02b58",
+      "name": "Benchmark Exp fe4f8d63",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "List Protected Characteristics",
+      "created_at": "2026-07-28T14:43:07",
+      "updated_at": "2026-07-28T14:43:07",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "f1d10fb2-d946-4416-8975-eb258398eaea": {
+      "id": "f1d10fb2-d946-4416-8975-eb258398eaea",
+      "name": "Benchmark Exp fe4f8d63",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "List Protected Characteristics",
+      "created_at": "2026-07-28T14:43:10",
+      "updated_at": "2026-07-28T14:43:10",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "9a302819-d089-433e-a859-6772778ddc98": {
+      "id": "9a302819-d089-433e-a859-6772778ddc98",
+      "name": "Benchmark Exp 5afaac02",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Identify Protected Characteristics under EEO",
+      "created_at": "2026-07-28T14:43:17",
+      "updated_at": "2026-07-28T14:43:17",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "4488fe02-7a75-4b67-8453-4f970bf50003": {
+      "id": "4488fe02-7a75-4b67-8453-4f970bf50003",
+      "name": "Benchmark Exp 5edeaed8",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Paid Holidays Retrieval",
+      "created_at": "2026-07-28T14:41:22",
+      "updated_at": "2026-07-28T14:41:22",
+      "status": "completed",
+      "total_runs": 1,
+      "completed_runs": 1,
+      "failed_runs": 0,
+      "best_overall_score": 100.0,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "c8b90226-c0c5-4ff1-bb20-153bd40edcfb": {
+      "id": "c8b90226-c0c5-4ff1-bb20-153bd40edcfb",
+      "name": "Benchmark Exp ff3a2e94",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Handling a Harassment Incident Involving Client Data Exposure",
+      "created_at": "2026-07-28T14:42:59",
+      "updated_at": "2026-07-28T14:42:59",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "0d0ad752-36e5-415d-8cbf-f884fbb9206e": {
+      "id": "0d0ad752-36e5-415d-8cbf-f884fbb9206e",
+      "name": "Benchmark Exp 458e0f26",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Hazard Reporting Procedure Reasoning",
+      "created_at": "2026-07-28T14:41:27",
+      "updated_at": "2026-07-28T14:41:27",
+      "status": "completed",
+      "total_runs": 1,
+      "completed_runs": 1,
+      "failed_runs": 0,
+      "best_overall_score": 100.0,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "nvidia/nemotron-3-super-120b-a12b:free"
+      ]
+    },
+    "dbeafc8e-1971-4d0c-991a-578b3aca5f8b": {
+      "id": "dbeafc8e-1971-4d0c-991a-578b3aca5f8b",
+      "name": "Benchmark Exp 458e0f26",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Hazard Reporting Procedure Reasoning",
+      "created_at": "2026-07-28T14:41:25",
+      "updated_at": "2026-07-28T14:41:25",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "c3289862-ca2c-4bab-9083-0ec77d6ab982": {
+      "id": "c3289862-ca2c-4bab-9083-0ec77d6ab982",
+      "name": "Benchmark Exp 9c820976",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Standard Work Hours and Absence Notification Protocol",
+      "created_at": "2026-07-28T14:42:55",
+      "updated_at": "2026-07-28T14:42:55",
+      "status": "completed",
+      "total_runs": 1,
+      "completed_runs": 1,
+      "failed_runs": 0,
+      "best_overall_score": 100.0,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "nvidia/nemotron-3-super-120b-a12b:free"
+      ]
+    },
+    "eb2b9b8f-9979-4359-97f5-fe0155c8054f": {
+      "id": "eb2b9b8f-9979-4359-97f5-fe0155c8054f",
+      "name": "Benchmark Exp 24dc8706",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Determine Disciplinary Actions for Policy Violations",
+      "created_at": "2026-07-28T14:43:29",
+      "updated_at": "2026-07-28T14:43:29",
+      "status": "completed",
+      "total_runs": 1,
+      "completed_runs": 1,
+      "failed_runs": 0,
+      "best_overall_score": 87.25,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "67d4a390-4be9-412d-893e-ad5d614365e7": {
+      "id": "67d4a390-4be9-412d-893e-ad5d614365e7",
+      "name": "Benchmark Exp 64d62b7a",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Reasoning Behind the Workaround Effectiveness",
+      "created_at": "2026-07-28T14:43:36",
+      "updated_at": "2026-07-28T14:43:36",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "dda140aa-133b-4dad-a6e2-95f784b4f965": {
+      "id": "dda140aa-133b-4dad-a6e2-95f784b4f965",
+      "name": "Benchmark Exp 5de052f2",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Identify Appropriate Leave for Family Care",
+      "created_at": "2026-07-28T14:43:14",
+      "updated_at": "2026-07-28T14:43:14",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "e17c4cac-e7fd-4bea-b822-a51094cefa77": {
+      "id": "e17c4cac-e7fd-4bea-b822-a51094cefa77",
+      "name": "Benchmark Exp 5de052f2",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Identify Appropriate Leave for Family Care",
+      "created_at": "2026-07-28T14:43:13",
+      "updated_at": "2026-07-28T14:43:13",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "48e05578-c992-4894-b1b1-f4d0ca3fa15b": {
+      "id": "48e05578-c992-4894-b1b1-f4d0ca3fa15b",
+      "name": "Benchmark Exp 6baf9ef4",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Incident Duration and Impact Analysis",
+      "created_at": "2026-07-28T14:43:44",
+      "updated_at": "2026-07-28T14:43:44",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "dd541ed1-2721-4e75-85ff-af89f23f806e": {
+      "id": "dd541ed1-2721-4e75-85ff-af89f23f806e",
+      "name": "Benchmark Exp d928a176",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Identify Primary Cause of SynapseSales CRM Performance Degradation",
+      "created_at": "2026-07-28T14:43:32",
+      "updated_at": "2026-07-28T14:43:32",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "0cfb39af-fcb5-47ee-98bb-ea6a8ccc3dfd": {
+      "id": "0cfb39af-fcb5-47ee-98bb-ea6a8ccc3dfd",
+      "name": "Benchmark Exp d928a176",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Identify Primary Cause of SynapseSales CRM Performance Degradation",
+      "created_at": "2026-07-28T14:43:35",
+      "updated_at": "2026-07-28T14:43:35",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "085abc5d-f30b-45e3-837c-a20228681d8b": {
+      "id": "085abc5d-f30b-45e3-837c-a20228681d8b",
+      "name": "Benchmark Exp ff3a2e94",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Handling a Harassment Incident Involving Client Data Exposure",
+      "created_at": "2026-07-28T14:43:04",
+      "updated_at": "2026-07-28T14:43:04",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "d98b431c-cea5-449b-9d5d-c6031045d2ab": {
+      "id": "d98b431c-cea5-449b-9d5d-c6031045d2ab",
+      "name": "Benchmark Exp beab0cfe",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Root Cause and Resolution Reasoning",
+      "created_at": "2026-07-28T14:43:53",
+      "updated_at": "2026-07-28T14:43:53",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "a10f7a21-1467-451b-9b12-8283b5ab66b0": {
+      "id": "a10f7a21-1467-451b-9b12-8283b5ab66b0",
+      "name": "Benchmark Exp beab0cfe",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Root Cause and Resolution Reasoning",
+      "created_at": "2026-07-28T14:43:48",
+      "updated_at": "2026-07-28T14:43:48",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "8e5237f7-8d20-443b-bb4b-d2caf4977ed3": {
+      "id": "8e5237f7-8d20-443b-bb4b-d2caf4977ed3",
+      "name": "Benchmark Exp e6341593",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Access Request Process under Least Privilege",
+      "created_at": "2026-07-28T14:45:40",
+      "updated_at": "2026-07-28T14:45:40",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "8af8d6d9-a9b1-47e0-9a92-9c06621e492e": {
+      "id": "8af8d6d9-a9b1-47e0-9a92-9c06621e492e",
+      "name": "Benchmark Exp 1f6b1fc7",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Encryption Requirements for Data Classification",
+      "created_at": "2026-07-28T14:44:00",
+      "updated_at": "2026-07-28T14:44:00",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "ffa9c4ab-9036-4798-8ec6-dd6a168f1c47": {
+      "id": "ffa9c4ab-9036-4798-8ec6-dd6a168f1c47",
+      "name": "Benchmark Exp 1f6b1fc7",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Encryption Requirements for Data Classification",
+      "created_at": "2026-07-28T14:44:08",
+      "updated_at": "2026-07-28T14:44:08",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "f1ebcffd-0694-4a0c-9078-0202880cc788": {
+      "id": "f1ebcffd-0694-4a0c-9078-0202880cc788",
+      "name": "Benchmark Exp cc7e1513",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "MFA Requirement for Remote Access",
+      "created_at": "2026-07-28T14:44:10",
+      "updated_at": "2026-07-28T14:44:10",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2 (Copy)",
+      "prompt_template_version": 2,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "47ae80cc-96ac-4a2a-8e7b-f5229c80c992": {
+      "id": "47ae80cc-96ac-4a2a-8e7b-f5229c80c992",
+      "name": "Benchmark Exp cc7e1513",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "MFA Requirement for Remote Access",
+      "created_at": "2026-07-28T14:45:37",
+      "updated_at": "2026-07-28T14:45:37",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "171c082b-c9da-4c0b-bd51-83c80d5cbaad": {
+      "id": "171c082b-c9da-4c0b-bd51-83c80d5cbaad",
+      "name": "Benchmark Exp af3f2d1d",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Policy Review Frequency",
+      "created_at": "2026-07-28T14:43:57",
+      "updated_at": "2026-07-28T14:43:57",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "2e718b99-a9f7-41b6-bfe6-a0272c08757e": {
+      "id": "2e718b99-a9f7-41b6-bfe6-a0272c08757e",
+      "name": "Benchmark Exp 6baf9ef4",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Incident Duration and Impact Analysis",
+      "created_at": "2026-07-28T14:43:47",
+      "updated_at": "2026-07-28T14:43:47",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "d8566eae-8aca-4f58-aff2-054eaddc4817": {
+      "id": "d8566eae-8aca-4f58-aff2-054eaddc4817",
+      "name": "Benchmark Exp e6341593",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Access Request Process under Least Privilege",
+      "created_at": "2026-07-28T14:45:43",
+      "updated_at": "2026-07-28T14:45:43",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    },
+    "2543ee51-1204-45a9-af37-0081ecc0ba27": {
+      "id": "2543ee51-1204-45a9-af37-0081ecc0ba27",
+      "name": "Benchmark Exp 64d62b7a",
+      "description": "Automated Benchmark Experiment",
+      "task_name": "Reasoning Behind the Workaround Effectiveness",
+      "created_at": "2026-07-28T14:43:41",
+      "updated_at": "2026-07-28T14:43:41",
+      "status": "failed",
+      "total_runs": 1,
+      "completed_runs": 0,
+      "failed_runs": 1,
+      "best_overall_score": null,
+      "prompt_template_name": "Resume Prompt V2",
+      "prompt_template_version": 1,
+      "models": [
+        "google/gemma-4-31b-it:free"
+      ]
+    }
+  }
+}

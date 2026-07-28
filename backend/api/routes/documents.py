@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile
 
 from api.dependencies import get_document_service
 from core.exceptions import NotFoundException, BadRequestException
-from schemas.document import DocumentCreate, DocumentResponse
+from schemas.document import DocumentCreate, DocumentResponse, DocumentStatsResponse
 from services.document import DocumentService
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -91,6 +91,18 @@ async def delete_document(
     """Delete a document by ID."""
     try:
         await service.delete_document(document_id)
+    except NotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+
+
+@router.get("/{document_id}/stats", response_model=DocumentStatsResponse)
+async def get_document_stats(
+    document_id: uuid.UUID,
+    service: DocumentService = Depends(get_document_service),
+) -> Any:
+    """Retrieve benchmark stats (chunk count, page count) for a document."""
+    try:
+        return await service.get_document_stats(document_id)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
 

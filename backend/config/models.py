@@ -47,7 +47,12 @@ MODEL_REGISTRY: dict[str, ModelInfo] = {
     },
     "cohere/north-mini-code:free": {
         "provider": "openrouter",
-        "display_name": "North Mini Code",
+        "supports_judge": True,
+        "enabled": True,
+    },
+    "meta-llama/llama-3.1-8b-instruct:free": {
+        "provider": "openrouter",
+        "display_name": "Llama 3.1 8B",
         "supports_judge": True,
         "enabled": True,
     }

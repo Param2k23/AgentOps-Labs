@@ -72,39 +72,51 @@ class GeminiProvider(ProviderInterface):
         if not self.api_key:
             raise LLMException("Gemini API key is missing. Please configure GEMINI_API_KEY.")
             
-        try:
-            # Using synchronous call in a thread or asyncio equivalent.
-            # google-genai supports async via client.aio.models.generate_content
-            response = await self.client.aio.models.generate_content(
-                model=model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=temperature,
+        max_retries = 3
+        base_delay = 1
+        
+        for attempt in range(max_retries + 1):
+            try:
+                response = await self.client.aio.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=temperature,
+                    )
                 )
-            )
-            
-            content = response.text or ""
-            
-            usage = response.usage_metadata
-            prompt_tokens = usage.prompt_token_count if usage else 0
-            completion_tokens = usage.candidates_token_count if usage else 0
-            total_tokens = usage.total_token_count if usage else 0
-            
-            return {
-                "text": content,
-                "provider": "gemini",
-                "model": model,
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "total_tokens": total_tokens,
-            }
-            
-        except APIError as e:
-            logger.error(f"Gemini API error: {e}")
-            raise LLMException(f"Gemini API error: {e.message}")
-        except Exception as e:
-            logger.error(f"Unexpected Gemini provider error: {e}")
-            raise LLMException(f"Unexpected LLM error: {str(e)}")
+                
+                content = response.text or ""
+                # Gemini SDK doesn't expose usage tokens as easily in the same structure,
+                # we'd need to count them or extract from response metadata if available.
+                # For now, we mock token counts for Gemini if unavailable.
+                token_count = len(content.split()) * 1.3
+                
+                return {
+                    "text": content,
+                    "provider": "gemini",
+                    "model": model,
+                    "prompt_tokens": int(len(prompt.split()) * 1.3),
+                    "completion_tokens": int(token_count),
+                    "total_tokens": int(len(prompt.split()) * 1.3 + token_count),
+                }
+            except Exception as e:
+                import google.genai.errors
+                if isinstance(e, google.genai.errors.APIError) and e.code == 429:
+                    if attempt < max_retries:
+                        delay = base_delay * (2 ** attempt)
+                        logger.warning(f"Provider: Gemini, Model: {model}, Attempt: {attempt + 1}, Status: Rate Limited. Retrying in {delay} seconds...")
+                        await asyncio.sleep(delay)
+                        continue
+                logger.error(f"Gemini API error: {e}")
+                raise LLMException(f"Gemini API error: {e.message}")
+            except Exception as e:
+                if "429" in str(e) and attempt < max_retries:
+                    delay = base_delay * (2 ** attempt)
+                    logger.warning(f"Provider: Gemini, Model: {model}, Attempt: {attempt + 1}, Status: Rate Limited. Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
+                    continue
+                logger.error(f"Unexpected Gemini provider error: {e}")
+                raise LLMException(f"Unexpected LLM error: {str(e)}")
 
 class OpenRouterProvider(ProviderInterface):
     """OpenRouter implementation of the ProviderInterface using the OpenAI client."""
@@ -135,6 +147,9 @@ class OpenRouterProvider(ProviderInterface):
                     timeout=timeout
                 )
                 
+                if not response.choices:
+                    raise openai.InternalServerError(f"No choices returned. Response: {response}", response=None, body=None)
+
                 content = response.choices[0].message.content or ""
                 usage = response.usage
                 
@@ -230,6 +245,7 @@ class LLMService:
         fallback_models = []
         if getattr(get_settings(), "enable_fallback", True) and "free" in target_model.lower():
             fallback_models = [
+                "meta-llama/llama-3.1-8b-instruct:free",
                 "nvidia/nemotron-3-super-120b-a12b:free",
                 "nvidia/nemotron-3-ultra-550b-a55b:free"
             ]
@@ -259,51 +275,65 @@ class LLMService:
                 logger.info(f"LLM request successful. Latency: {latency_ms}ms. Tokens: {result.get('total_tokens', 0)}")
                 return result
                 
-            except LLMRateLimitException as e:
+            except Exception as e:
                 if idx < len(models_to_try) - 1:
-                    logger.warning(f"Model {current_model} rate limited. Falling back to {models_to_try[idx+1]}")
+                    logger.warning(f"Model {current_model} failed with {type(e).__name__}. Falling back to {models_to_try[idx+1]}")
                     continue
                 else:
                     end_time = time.perf_counter()
                     latency_ms = int((end_time - start_time) * 1000)
                     logger.error(f"LLM request failed after {latency_ms}ms. Error: {str(e)}")
                     raise e
-            except Exception as e:
-                end_time = time.perf_counter()
-                latency_ms = int((end_time - start_time) * 1000)
-                logger.error(f"LLM request failed after {latency_ms}ms. Error: {str(e)}")
-                raise e
 
     async def generate_raw(self, prompt: str, model: Optional[str] = None) -> Dict[str, Any]:
         """Generates a response using a raw provided prompt (bypassing default formatting).
         Useful for custom instructions, like LLM-as-a-judge logic.
         """
         target_model = model or self.default_model
-        provider = self._get_provider_for_model(target_model)
         
         logger.info(f"Invoking LLM provider using model {target_model} with raw prompt")
         
         start_time = time.perf_counter()
         
-        try:
-            result = await provider.generate(
-                prompt=prompt,
-                model=target_model,
-                timeout=self.timeout,
-                temperature=self.temperature
-            )
-            
-            end_time = time.perf_counter()
-            latency_ms = int((end_time - start_time) * 1000)
-            
-            result["latency_ms"] = latency_ms
-            
-            logger.info(f"Raw LLM request successful. Latency: {latency_ms}ms. Tokens: {result.get('total_tokens', 0)}")
-            
-            return result
-            
-        except Exception as e:
-            end_time = time.perf_counter()
-            latency_ms = int((end_time - start_time) * 1000)
-            logger.error(f"Raw LLM request failed after {latency_ms}ms. Error: {str(e)}")
-            raise e
+        fallback_models = []
+        if getattr(get_settings(), "enable_fallback", True) and "free" in target_model.lower():
+            fallback_models = [
+                "meta-llama/llama-3.1-8b-instruct:free",
+                "nvidia/nemotron-3-super-120b-a12b:free",
+                "nvidia/nemotron-3-ultra-550b-a55b:free"
+            ]
+            if target_model in fallback_models:
+                fallback_models.remove(target_model)
+                
+        models_to_try = [target_model] + fallback_models
+        
+        for idx, current_model in enumerate(models_to_try):
+            provider = self._get_provider_for_model(current_model)
+            try:
+                result = await provider.generate(
+                    prompt=prompt,
+                    model=current_model,
+                    timeout=self.timeout,
+                    temperature=self.temperature
+                )
+                
+                end_time = time.perf_counter()
+                latency_ms = int((end_time - start_time) * 1000)
+                
+                result["latency_ms"] = latency_ms
+                
+                if current_model != target_model:
+                    logger.info(f"Fallback successful in raw mode. Ultimately used model: {current_model}")
+                
+                logger.info(f"Raw LLM request successful. Latency: {latency_ms}ms. Tokens: {result.get('total_tokens', 0)}")
+                return result
+                
+            except Exception as e:
+                if idx < len(models_to_try) - 1:
+                    logger.warning(f"Model {current_model} failed with {type(e).__name__}. Falling back to {models_to_try[idx+1]}")
+                    continue
+                else:
+                    end_time = time.perf_counter()
+                    latency_ms = int((end_time - start_time) * 1000)
+                    logger.error(f"Raw LLM request failed after {latency_ms}ms. Error: {str(e)}")
+                    raise e

@@ -12,16 +12,17 @@ from config.settings import get_settings
 from core.exceptions import NotFoundException, BadRequestException
 from repositories.document import DocumentRepository
 from repositories.world import WorldRepository
-from schemas.document import DocumentCreate, DocumentResponse
+from schemas.document import DocumentCreate, DocumentResponse, DocumentStatsResponse
 from services.extraction import ExtractionService
 
 
 class DocumentService:
     """Service layer for Document entities."""
 
-    def __init__(self, document_repository: DocumentRepository, world_repository: WorldRepository):
+    def __init__(self, document_repository: DocumentRepository, world_repository: WorldRepository, document_chunk_repository=None):
         self.document_repository = document_repository
         self.world_repository = world_repository
+        self.document_chunk_repository = document_chunk_repository
         self.settings = get_settings()
 
 
@@ -92,6 +93,22 @@ class DocumentService:
         if not document:
             raise NotFoundException(detail="Document not found.")
         return DocumentResponse.model_validate(document)
+
+    async def get_document_stats(self, document_id: UUID) -> DocumentStatsResponse:
+        """Retrieve benchmark stats (chunk count, estimated page count) for a document."""
+        document = await self.document_repository.get(document_id)
+        if not document:
+            raise NotFoundException(detail="Document not found.")
+        
+        chunk_count = 0
+        if self.document_chunk_repository:
+            chunks = await self.document_chunk_repository.get_by_document(document_id)
+            chunk_count = len(chunks)
+            
+        text = document.extracted_text or ""
+        page_count = max(1, len(text) // 3000) if text else 0
+        
+        return DocumentStatsResponse(chunk_count=chunk_count, page_count=page_count)
 
     async def get_all_documents(self, skip: int = 0, limit: int = 100) -> Sequence[DocumentResponse]:
         """Retrieve all documents."""
